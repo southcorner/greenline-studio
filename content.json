@@ -1,39 +1,4 @@
 {
-  "site": {
-    "name": "Greenline Commerce Studio",
-    "short_name": "Greenline",
-    "base_url": "https://greenline.studio",
-    "locale": "en",
-    "email": "hello@greenlinestudio.in",
-    "twitter": "@greenlinestudio",
-    "theme_color": "#0C1210",
-    "og_image": "/og-image.png",
-    "founding_year": "2026",
-    "area_served": "Worldwide",
-    "service_list": [
-      "Web Development",
-      "Ecommerce Store Building",
-      "Marketplace Management",
-      "Digital Marketing",
-      "Social Media Handling",
-      "Product Design",
-      "Branding"
-    ]
-  },
-  "seo": {
-    "home": {
-      "title": "Greenline — Digital Commerce Studio | Shopify Web Development & Ecom Growth",
-      "description": "Greenline is a digital commerce studio. We design, build and run high-performance Shopify storefronts, marketplaces and marketing for brands that want growth without friction.",
-      "path": "/",
-      "keywords": "digital commerce studio, Shopify development, ecommerce agency, headless commerce, marketplace management, ecommerce marketing"
-    },
-    "services": {
-      "title": "Services — Web, Shopify, Marketplaces & Marketing | Greenline",
-      "description": "One studio for the whole commerce stack: storefront builds, Shopify & WooCommerce, marketplace management, performance marketing, social, product design and branding.",
-      "path": "/services",
-      "keywords": "ecommerce services, Shopify store setup, marketplace management, performance marketing, product design, branding agency"
-    }
-  },
   "home": {
     "hero_eyebrow": "DIGITAL COMMERCE STUDIO",
     "metric_label": "AVG. REVENUE LIFT",
@@ -62,7 +27,7 @@
     "svc3_title": "Marketplace Management",
     "svc3_desc": "Amazon, Flipkart and every major platform, listings, catalogue, ads and account health, handled.",
     "svc4_title": "Digital Marketing",
-    "svc4_desc": "Performance campaigns across Google, Meta, X and Amazon Ads, every rupee tracked to revenue.",
+    "svc4_desc": "Performance campaigns across Google, Meta, X and Amazon Ads, every dollar tracked to revenue.",
     "svc5_title": "Social Media Handling",
     "svc5_desc": "Content, calendars, community and growth, a feed that builds the brand between launches.",
     "svc6_title": "Product Design",
