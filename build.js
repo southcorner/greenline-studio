@@ -90,7 +90,145 @@ const SERVICES_MARKERS = {
   '__GL_SCTA_SUB__':          content.services.cta_sub,
 };
 
-function buildPage(srcFile, markers) {
+const site = content.site;
+
+// ── SEO helpers ───────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function absUrl(p) {
+  if (/^https?:\/\//i.test(p)) return p;
+  return site.base_url.replace(/\/$/, '') + (p.startsWith('/') ? p : '/' + p);
+}
+
+// JSON-LD graph: Organization + WebSite on every page, plus a Service catalogue
+// on the services page. Inlined as a <script type="application/ld+json">.
+function jsonLd(seoKey) {
+  const org = {
+    '@type': 'Organization',
+    '@id': absUrl('/#organization'),
+    name: site.name,
+    url: absUrl('/'),
+    email: site.email,
+    logo: absUrl('/favicon.svg'),
+    image: absUrl(site.og_image),
+    foundingDate: site.founding_year,
+    areaServed: site.area_served,
+    sameAs: [],
+    contactPoint: {
+      '@type': 'ContactPoint',
+      email: site.email,
+      contactType: 'sales',
+      areaServed: site.area_served,
+    },
+  };
+  const website = {
+    '@type': 'WebSite',
+    '@id': absUrl('/#website'),
+    name: site.name,
+    url: absUrl('/'),
+    publisher: { '@id': absUrl('/#organization') },
+    inLanguage: site.locale,
+  };
+  const graph = [org, website];
+
+  if (seoKey === 'services') {
+    graph.push({
+      '@type': 'OfferCatalog',
+      '@id': absUrl('/services#catalog'),
+      name: 'Commerce services',
+      provider: { '@id': absUrl('/#organization') },
+      itemListElement: site.service_list.map((name, i) => ({
+        '@type': 'Offer',
+        position: i + 1,
+        itemOffered: { '@type': 'Service', name, provider: { '@id': absUrl('/#organization') } },
+      })),
+    });
+  }
+
+  const data = { '@context': 'https://schema.org', '@graph': graph };
+  // Escape closing tags so the JSON can't break out of the <script> element.
+  return '<script type="application/ld+json">' +
+    JSON.stringify(data).replace(/</g, '\\u003C') +
+    '</script>';
+}
+
+// Full <head> SEO block injected into the served wrapper (visible without JS).
+function seoHead(seoKey) {
+  const seo = content.seo[seoKey];
+  const canonical = absUrl(seo.path);
+  const ogImg = absUrl(site.og_image);
+  const lines = [
+    `<title>${esc(seo.title)}</title>`,
+    `<meta name="viewport" content="width=device-width, initial-scale=1">`,
+    `<meta name="description" content="${esc(seo.description)}">`,
+    seo.keywords ? `<meta name="keywords" content="${esc(seo.keywords)}">` : '',
+    `<meta name="robots" content="index, follow, max-image-preview:large">`,
+    `<meta name="theme-color" content="${esc(site.theme_color)}">`,
+    `<link rel="canonical" href="${esc(canonical)}">`,
+    `<link rel="icon" type="image/svg+xml" href="/favicon.svg">`,
+    `<link rel="apple-touch-icon" href="/apple-touch-icon.png">`,
+    // Open Graph
+    `<meta property="og:type" content="website">`,
+    `<meta property="og:site_name" content="${esc(site.name)}">`,
+    `<meta property="og:title" content="${esc(seo.title)}">`,
+    `<meta property="og:description" content="${esc(seo.description)}">`,
+    `<meta property="og:url" content="${esc(canonical)}">`,
+    `<meta property="og:image" content="${esc(ogImg)}">`,
+    `<meta property="og:image:width" content="600">`,
+    `<meta property="og:image:height" content="315">`,
+    `<meta property="og:locale" content="${esc(site.locale)}">`,
+    // Twitter
+    `<meta name="twitter:card" content="summary_large_image">`,
+    site.twitter ? `<meta name="twitter:site" content="${esc(site.twitter)}">` : '',
+    `<meta name="twitter:title" content="${esc(seo.title)}">`,
+    `<meta name="twitter:description" content="${esc(seo.description)}">`,
+    `<meta name="twitter:image" content="${esc(ogImg)}">`,
+    jsonLd(seoKey),
+  ].filter(Boolean);
+  return lines.join('\n  ');
+}
+
+// Strip the rendered template down to clean, crawlable HTML for a <noscript>
+// fallback, so non-JS crawlers still receive the real page copy.
+function readableFallback(decodedHtml) {
+  let h = decodedHtml;
+  const bOpen = h.indexOf('<body');
+  if (bOpen >= 0) h = h.slice(h.indexOf('>', bOpen) + 1);
+  const bClose = h.lastIndexOf('</body>');
+  if (bClose >= 0) h = h.slice(0, bClose);
+
+  h = h
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<svg[\s\S]*?<\/svg>/gi, '')
+    .replace(/<helmet[\s\S]*?<\/helmet>/gi, '')
+    .replace(/<noscript[\s\S]*?<\/noscript>/gi, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<link[^>]*>/gi, '');
+
+  // Fill known template expressions, drop the rest.
+  h = h.replace(/\{\{\s*email\s*\}\}/g, site.email).replace(/\{\{[^}]*\}\}/g, '');
+
+  const keep = new Set(['h1','h2','h3','h4','h5','h6','p','ul','ol','li','a','nav','footer','header','section','article','strong','em','br']);
+  h = h.replace(/<(\/?)([a-zA-Z0-9-]+)([^>]*)>/g, (m, slash, tag, attrs) => {
+    tag = tag.toLowerCase();
+    if (!keep.has(tag)) return '';
+    if (tag === 'a' && !slash) {
+      const hm = attrs.match(/href="([^"]*)"/i);
+      return hm ? `<a href="${esc(hm[1])}">` : '<a>';
+    }
+    return '<' + slash + tag + '>';
+  });
+
+  h = h.replace(/[ \t]+/g, ' ').replace(/(\s*\n\s*){2,}/g, '\n').trim();
+  return '<noscript>\n<div id="seo-content">\n' + h + '\n</div>\n</noscript>';
+}
+
+function buildPage(srcFile, seoKey, markers) {
   const src    = fs.readFileSync(path.join(__dirname, 'src', srcFile), 'utf8');
   const tStart = src.indexOf(TEMPLATE_OPEN) + TEMPLATE_OPEN.length;
   const tEnd   = src.indexOf('</script>', tStart);
@@ -106,9 +244,19 @@ function buildPage(srcFile, markers) {
     console.warn(`  WARNING: unresolved markers in ${srcFile}:`, [...new Set(remaining)]);
   }
 
+  // Build crawlable fallback from the resolved template before re-encoding.
+  const fallback = readableFallback(html);
+
   // Re-encode: JSON.stringify then escape closing tags to prevent </script> in output
   const reEncoded = JSON.stringify(html).replace(/<\//g, '<\\u002F');
-  return src.substring(0, tStart) + '\n' + reEncoded + '\n' + src.substring(tEnd);
+  let out = src.substring(0, tStart) + '\n' + reEncoded + '\n' + src.substring(tEnd);
+
+  // ── Inject SEO into the served wrapper (what crawlers read without JS) ──
+  out = out.replace('<html>', `<html lang="${esc(site.locale)}">`);
+  out = out.replace('<title>Bundled Page</title>', seoHead(seoKey));
+  out = out.replace('</body>\n</html>', fallback + '\n</body>\n</html>');
+
+  return out;
 }
 
 function copyFile(src, dest) {
@@ -126,17 +274,69 @@ function copyDir(src, dest) {
   }
 }
 
+// Copy static assets into dist. Binary assets are stored base64-encoded as
+// "<name>.b64" text files (so the repo stays text-only and pushable); they are
+// decoded back to their real binary form on build.
+function copyStatic(src, dest) {
+  if (!fs.existsSync(src)) return;
+  fs.mkdirSync(dest, { recursive: true });
+  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+    if (entry.isDirectory()) continue;
+    const s = path.join(src, entry.name);
+    if (entry.name.endsWith('.b64')) {
+      const out = entry.name.slice(0, -4);
+      fs.writeFileSync(path.join(dest, out), Buffer.from(fs.readFileSync(s, 'utf8'), 'base64'));
+    } else {
+      fs.copyFileSync(s, path.join(dest, entry.name));
+    }
+  }
+}
+
+// robots.txt — allow everything except the CMS admin, point at the sitemap.
+function buildRobots() {
+  return [
+    'User-agent: *',
+    'Allow: /',
+    'Disallow: /admin/',
+    'Disallow: /admin',
+    '',
+    `Sitemap: ${absUrl('/sitemap.xml')}`,
+    '',
+  ].join('\n');
+}
+
+// sitemap.xml — one entry per public page, derived from the SEO config.
+function buildSitemap() {
+  const today = new Date().toISOString().slice(0, 10);
+  const urls = Object.values(content.seo).map(seo => (
+    '  <url>\n' +
+    `    <loc>${esc(absUrl(seo.path))}</loc>\n` +
+    `    <lastmod>${today}</lastmod>\n` +
+    `    <changefreq>monthly</changefreq>\n` +
+    `    <priority>${seo.path === '/' ? '1.0' : '0.8'}</priority>\n` +
+    '  </url>'
+  )).join('\n');
+  return '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+    urls + '\n</urlset>\n';
+}
+
 // Build
 fs.mkdirSync(path.join(__dirname, 'dist'), { recursive: true });
 
 console.log('Building index.html...');
-fs.writeFileSync(path.join(__dirname, 'dist', 'index.html'),    buildPage('index.html',    HOME_MARKERS),     'utf8');
+fs.writeFileSync(path.join(__dirname, 'dist', 'index.html'),    buildPage('index.html',    'home',     HOME_MARKERS),     'utf8');
 
 console.log('Building services.html...');
-fs.writeFileSync(path.join(__dirname, 'dist', 'services.html'), buildPage('services.html', SERVICES_MARKERS), 'utf8');
+fs.writeFileSync(path.join(__dirname, 'dist', 'services.html'), buildPage('services.html', 'services', SERVICES_MARKERS), 'utf8');
+
+console.log('Writing robots.txt and sitemap.xml...');
+fs.writeFileSync(path.join(__dirname, 'dist', 'robots.txt'),  buildRobots(),  'utf8');
+fs.writeFileSync(path.join(__dirname, 'dist', 'sitemap.xml'), buildSitemap(), 'utf8');
 
 copyFile(path.join(__dirname, 'sw.js'),    path.join(__dirname, 'dist', 'sw.js'));
 copyFile(path.join(__dirname, '_headers'), path.join(__dirname, 'dist', '_headers'));
 copyDir( path.join(__dirname, 'admin'),    path.join(__dirname, 'dist', 'admin'));
+copyStatic(path.join(__dirname, 'static'), path.join(__dirname, 'dist'));
 
 console.log('Build complete → dist/');

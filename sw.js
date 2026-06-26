@@ -1,4 +1,4 @@
-const CACHE_NAME = 'greenline-v2';
+const CACHE_NAME = 'greenline-v3';
 const PAGES = ['/', '/services'];
 
 self.addEventListener('install', function(e) {
