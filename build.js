@@ -5,6 +5,35 @@ const path = require('path');
 const content = JSON.parse(fs.readFileSync(path.join(__dirname, 'content.json'), 'utf8'));
 const TEMPLATE_OPEN = '<script type="__bundler/template">';
 
+// SEO config lives in its own file (seo.json), NOT content.json: the in-repo
+// CMS rewrites content.json from only its known home/services fields, so any
+// extra keys there get wiped on the next save. Reading SEO separately keeps it
+// CMS-proof. Fall back to safe defaults so a build never crashes on it.
+const SEO_DEFAULTS = {
+  site: {
+    name: 'Greenline Commerce Studio', short_name: 'Greenline',
+    base_url: 'https://greenline.studio', locale: 'en',
+    email: 'hello@greenlinestudio.in', twitter: '', theme_color: '#0C1210',
+    og_image: '/og-image.png', founding_year: '2026', area_served: 'Worldwide',
+    service_list: [],
+  },
+  seo: {
+    home:     { title: 'Greenline Commerce Studio', description: '', path: '/',         keywords: '' },
+    services: { title: 'Services — Greenline',       description: '', path: '/services', keywords: '' },
+  },
+};
+
+let seoConfig = SEO_DEFAULTS;
+try {
+  const loaded = JSON.parse(fs.readFileSync(path.join(__dirname, 'seo.json'), 'utf8'));
+  seoConfig = {
+    site: Object.assign({}, SEO_DEFAULTS.site, loaded.site),
+    seo:  Object.assign({}, SEO_DEFAULTS.seo,  loaded.seo),
+  };
+} catch (e) {
+  console.warn('  WARNING: seo.json missing or invalid — using SEO defaults:', e.message);
+}
+
 // Marker → content value maps for each page
 const HOME_MARKERS = {
   '__GL_HERO_EYEBROW__':     content.home.hero_eyebrow,
@@ -90,7 +119,7 @@ const SERVICES_MARKERS = {
   '__GL_SCTA_SUB__':          content.services.cta_sub,
 };
 
-const site = content.site;
+const site = seoConfig.site;
 
 // ── SEO helpers ───────────────────────────────────────────────────────────
 function esc(s) {
@@ -158,7 +187,7 @@ function jsonLd(seoKey) {
 
 // Full <head> SEO block injected into the served wrapper (visible without JS).
 function seoHead(seoKey) {
-  const seo = content.seo[seoKey];
+  const seo = seoConfig.seo[seoKey];
   const canonical = absUrl(seo.path);
   const ogImg = absUrl(site.og_image);
   const lines = [
@@ -308,7 +337,7 @@ function buildRobots() {
 // sitemap.xml — one entry per public page, derived from the SEO config.
 function buildSitemap() {
   const today = new Date().toISOString().slice(0, 10);
-  const urls = Object.values(content.seo).map(seo => (
+  const urls = Object.values(seoConfig.seo).map(seo => (
     '  <url>\n' +
     `    <loc>${esc(absUrl(seo.path))}</loc>\n` +
     `    <lastmod>${today}</lastmod>\n` +
