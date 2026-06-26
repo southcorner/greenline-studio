@@ -139,16 +139,15 @@ function gtagHead() {
   const id = site.gtag_id;
   if (!id) return '';
   const safeId = String(id).replace(/[^A-Za-z0-9_-]/g, '');
-  return [
-    '<!-- Google tag (gtag.js) -->',
-    `<script async src="https://www.googletagmanager.com/gtag/js?id=${safeId}"></script>`,
-    '<script>',
-    '  window.dataLayer = window.dataLayer || [];',
-    '  function gtag(){dataLayer.push(arguments);}',
-    "  gtag('js', new Date());",
-    `  gtag('config', '${safeId}');`,
-    '</script>',
-  ].join('\n  ');
+  // Inject gtag.js dynamically from a single inline script (no <script src>):
+  // the bundler boot awaits every src script in order, so a static gtag tag
+  // would block app init until it loads. Creating it at runtime keeps it async.
+  return '<!-- Google tag (gtag.js) --><script>' +
+    'window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}' +
+    'gtag("js",new Date());gtag("config","' + safeId + '");' +
+    '(function(){var g=document.createElement("script");g.async=true;' +
+    'g.src="https://www.googletagmanager.com/gtag/js?id=' + safeId + '";' +
+    'document.head.appendChild(g);})();</script>';
 }
 
 // JSON-LD graph: Organization + WebSite on every page, plus a Service catalogue
@@ -201,6 +200,23 @@ function jsonLd(seoKey) {
   return '<script type="application/ld+json">' +
     JSON.stringify(data).replace(/</g, '\\u003C') +
     '</script>';
+}
+
+// Document-level click delegate for copy-to-clipboard buttons (keyed off
+// data-copy-email). Delegation is used instead of an inline onclick because the
+// design-tool React layer rejects string event handlers (React error #231);
+// a document listener is framework-agnostic and survives re-renders.
+function copyDelegateScript() {
+  return '<script>(function(){if(window.__glCopy)return;window.__glCopy=1;' +
+    'document.addEventListener("click",function(e){' +
+    'var b=e.target&&e.target.closest&&e.target.closest("[data-copy-email]");if(!b)return;' +
+    'e.preventDefault();var email=b.getAttribute("data-copy-email");' +
+    'var t=b.querySelector("[data-ct]")||b;var o=t.textContent;' +
+    'function f(s){t.textContent=s?"Copied!":"Press Ctrl+C";' +
+    'b.style.borderColor=s?"#36E08B":"#C0492F";' +
+    'setTimeout(function(){t.textContent=o;b.style.borderColor="#2A3431";},1600);}' +
+    'try{navigator.clipboard.writeText(email).then(function(){f(1);},function(){f(0);});}' +
+    'catch(x){f(0);}});})();</script>';
 }
 
 // Full <head> SEO block injected into the served wrapper (visible without JS).
@@ -300,7 +316,8 @@ function buildPage(srcFile, seoKey, markers) {
   // run, e.g. gtag) have to live in the template head. We inject them before the
   // template's </head>; the outer-head copy below is purely for non-JS crawlers
   // that read the raw HTML and never execute the bundler.
-  const templateHeadInject = '\n' + seoHead(seoKey) + '\n  ' + gtagHead() + '\n';
+  // Delegate first so it registers even if a later script stalls; then SEO, then gtag.
+  const templateHeadInject = '\n' + copyDelegateScript() + '\n  ' + seoHead(seoKey) + '\n  ' + gtagHead() + '\n';
   html = html.replace('</head>', templateHeadInject + '</head>');
 
   // Re-encode: JSON.stringify then escape closing tags to prevent </script> in output
