@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thank you — Greenline Commerce Studio</title>
+<meta name="description" content="Your request has reached Greenline. We'll reply within one business day.">
+<!-- Conversion / thank-you pages should not be indexed -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0C1210">
+<link rel="canonical" href="https://greenline.studio/thank-you">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- ============================================================= -->
+<!-- GOOGLE ADS CONVERSION TAG                                      -->
+<!-- Paste your Google Ads (or GA4) lead conversion snippet here.   -->
+<!-- This page loads only after a successful form submission, so a  -->
+<!-- page-load / destination-URL conversion fires reliably.         -->
+<!-- Example (replace AW-XXXXXXXXXX / conversion label):            -->
+<!--                                                                -->
+<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=AW-XXXXXXXXXX"></script> -->
+<!-- <script>                                                       -->
+<!--   window.dataLayer = window.dataLayer || [];                   -->
+<!--   function gtag(){dataLayer.push(arguments);}                  -->
+<!--   gtag('js', new Date());                                      -->
+<!--   gtag('config', 'AW-XXXXXXXXXX');                             -->
+<!--   gtag('event', 'conversion', {'send_to': 'AW-XXXXXXXXXX/AbC-D_efGhIjKlMnOp'}); -->
+<!-- </script>                                                      -->
+<!-- ============================================================= -->
+
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#0C1210; color:#F4F3EE; font-family:Outfit, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    display:flex; align-items:center; justify-content:center; padding:32px; overflow:hidden; position:relative;
+  }
+  .glow { position:absolute; top:-180px; right:-180px; width:560px; height:560px; border-radius:50%;
+          background:rgba(54,224,139,.06); filter:blur(8px); pointer-events:none; }
+  .card { position:relative; max-width:560px; width:100%; text-align:left; }
+  .top { display:flex; align-items:center; gap:14px; margin-bottom:48px; }
+  .mark { width:40px; height:40px; border-radius:9px; background:#0F3B2C; position:relative; overflow:hidden; }
+  .mark span { position:absolute; left:8px; right:8px; bottom:14px; height:3px; background:#36E08B; border-radius:2px; }
+  .brand { font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.22em; color:#7E847F; }
+  .check { width:56px; height:56px; border-radius:50%; background:rgba(54,224,139,.12);
+           display:flex; align-items:center; justify-content:center; margin-bottom:28px; }
+  .check svg { width:28px; height:28px; }
+  .eyebrow { font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.28em; color:#36E08B; margin-bottom:20px; }
+  h1 { font-weight:500; font-size:46px; line-height:1.04; letter-spacing:-.03em; margin-bottom:20px; }
+  h1 .hl { position:relative; white-space:nowrap; }
+  h1 .hl u { position:absolute; left:0; right:3px; bottom:4px; height:4px; background:#36E08B; border-radius:2px; }
+  p.lead { font-weight:300; font-size:18px; line-height:1.6; color:#A9AEA8; max-width:480px; margin-bottom:38px; }
+  .actions { display:flex; flex-wrap:wrap; gap:14px; }
+  .btn { font-family:Outfit; font-weight:500; font-size:15px; padding:14px 24px; border-radius:11px;
+         transition:transform .15s ease, background .15s ease; text-decoration:none; display:inline-block; }
+  .btn-primary { background:#36E08B; color:#0C1210; }
+  .btn-primary:hover { background:#2BC679; transform:translateY(-1px); }
+  .btn-ghost { border:1px solid rgba(255,255,255,.22); color:#F4F3EE; }
+  .btn-ghost:hover { background:#15181A; transform:translateY(-1px); }
+  .foot { font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.14em; color:#7E847F; margin-top:48px; }
+  @media (max-width:520px) { h1 { font-size:36px; } p.lead { font-size:16px; } }
+</style>
+</head>
+<body>
+  <div class="glow"></div>
+  <main class="card">
+    <div class="top">
+      <div class="mark"><span></span></div>
+      <span class="brand">GREENLINE&nbsp;COMMERCE&nbsp;STUDIO</span>
+    </div>
+
+    <div class="check" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 12.5l5 5L20 6.5" stroke="#36E08B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <div class="eyebrow">REQUEST RECEIVED</div>
+    <h1>Thanks — we're on <span class="hl">it.<u></u></span></h1>
+    <p class="lead">Your request is in. A member of the studio will read it and reply within one business day. No spam — one reply, one business day.</p>
+
+    <div class="actions">
+      <a class="btn btn-primary" href="/">Back to home</a>
+      <a class="btn btn-ghost" href="/services">Explore services</a>
+    </div>
+
+    <div class="foot">© 2026 GREENLINE COMMERCE STUDIO · hello@greenlinestudio.in</div>
+  </main>
+</body>
+</html>
