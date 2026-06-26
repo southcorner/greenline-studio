@@ -10,6 +10,9 @@
 /admin/*
   X-Robots-Tag: noindex, nofollow
 
+/thank-you
+  X-Robots-Tag: noindex, nofollow
+
 /og-image.png
   Cache-Control: public, max-age=31536000, immutable
 
