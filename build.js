@@ -133,6 +133,24 @@ function absUrl(p) {
   return site.base_url.replace(/\/$/, '') + (p.startsWith('/') ? p : '/' + p);
 }
 
+// Google tag (gtag.js) — emitted when site.gtag_id is set. Loaded as high in
+// the head as possible so Google Ads conversions and analytics fire on load.
+function gtagHead() {
+  const id = site.gtag_id;
+  if (!id) return '';
+  const safeId = String(id).replace(/[^A-Za-z0-9_-]/g, '');
+  return [
+    '<!-- Google tag (gtag.js) -->',
+    `<script async src="https://www.googletagmanager.com/gtag/js?id=${safeId}"></script>`,
+    '<script>',
+    '  window.dataLayer = window.dataLayer || [];',
+    '  function gtag(){dataLayer.push(arguments);}',
+    "  gtag('js', new Date());",
+    `  gtag('config', '${safeId}');`,
+    '</script>',
+  ].join('\n  ');
+}
+
 // JSON-LD graph: Organization + WebSite on every page, plus a Service catalogue
 // on the services page. Inlined as a <script type="application/ld+json">.
 function jsonLd(seoKey) {
@@ -282,6 +300,8 @@ function buildPage(srcFile, seoKey, markers) {
 
   // ── Inject SEO into the served wrapper (what crawlers read without JS) ──
   out = out.replace('<html>', `<html lang="${esc(site.locale)}">`);
+  const gtag = gtagHead();
+  if (gtag) out = out.replace('<meta charset="utf-8">', '<meta charset="utf-8">\n  ' + gtag);
   out = out.replace('<title>Bundled Page</title>', seoHead(seoKey));
   out = out.replace('</body>\n</html>', fallback + '\n</body>\n</html>');
 
