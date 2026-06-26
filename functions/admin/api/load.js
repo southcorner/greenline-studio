@@ -15,7 +15,11 @@ export async function onRequestGet({ env }) {
   }
 
   const data    = await res.json();
-  const content = JSON.parse(atob(data.content.replace(/\n/g, '')));
+  // atob() returns a binary string (one char per byte). For UTF-8 content we
+  // must decode those bytes as UTF-8, not treat them as Latin-1 characters.
+  const rawStr  = atob(data.content.replace(/\n/g, ''));
+  const bytes   = Uint8Array.from(rawStr, c => c.charCodeAt(0));
+  const content = JSON.parse(new TextDecoder('utf-8').decode(bytes));
 
   return new Response(JSON.stringify({ content, sha: data.sha }), {
     status: 200,
