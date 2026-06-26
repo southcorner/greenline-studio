@@ -294,14 +294,23 @@ function buildPage(srcFile, seoKey, markers) {
   // Build crawlable fallback from the resolved template before re-encoding.
   const fallback = readableFallback(html);
 
+  // ── Inject SEO + analytics into the TEMPLATE head ──
+  // The bundler boot does documentElement.replaceWith(template), which discards
+  // the outer wrapper <head>. So tags that must survive into the live DOM (and
+  // run, e.g. gtag) have to live in the template head. We inject them before the
+  // template's </head>; the outer-head copy below is purely for non-JS crawlers
+  // that read the raw HTML and never execute the bundler.
+  const templateHeadInject = '\n' + seoHead(seoKey) + '\n  ' + gtagHead() + '\n';
+  html = html.replace('</head>', templateHeadInject + '</head>');
+
   // Re-encode: JSON.stringify then escape closing tags to prevent </script> in output
   const reEncoded = JSON.stringify(html).replace(/<\//g, '<\\u002F');
   let out = src.substring(0, tStart) + '\n' + reEncoded + '\n' + src.substring(tEnd);
 
-  // ── Inject SEO into the served wrapper (what crawlers read without JS) ──
+  // ── Inject SEO into the served wrapper (what non-JS crawlers read) ──
+  // (This copy is wiped when the bundler swaps in the template; the template
+  // head injection above is what persists for JS clients and gtag.)
   out = out.replace('<html>', `<html lang="${esc(site.locale)}">`);
-  const gtag = gtagHead();
-  if (gtag) out = out.replace('<meta charset="utf-8">', '<meta charset="utf-8">\n  ' + gtag);
   out = out.replace('<title>Bundled Page</title>', seoHead(seoKey));
   out = out.replace('</body>\n</html>', fallback + '\n</body>\n</html>');
 
