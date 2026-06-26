@@ -1,6 +1,7 @@
 'use strict';
 const fs   = require('fs');
 const path = require('path');
+const zlib = require('zlib');
 
 const content = JSON.parse(fs.readFileSync(path.join(__dirname, 'content.json'), 'utf8'));
 const TEMPLATE_OPEN = '<script type="__bundler/template">';
@@ -291,6 +292,40 @@ function readableFallback(decodedHtml) {
   return '<noscript>\n<div id="seo-content">\n' + h + '\n</div>\n</noscript>';
 }
 
+// Rewrite third-party CDN script URLs baked into the bundler's app asset to
+// self-hosted /vendor copies — removes the unpkg supply-chain dependency (and
+// the boot stall when that CDN is slow/blocked). The app bundle is a gzipped,
+// base64 asset in the manifest, so we decode, swap URLs, and re-encode.
+const VENDOR_MAP = {
+  'https://unpkg.com/@babel/standalone@7.26.4/babel.min.js': '/vendor/babel.min.js',
+  'https://unpkg.com/react@18.3.1/umd/react.production.min.js': '/vendor/react.production.min.js',
+  'https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js': '/vendor/react-dom.production.min.js',
+};
+function selfHostBundle(out) {
+  const open = '<script type="__bundler/manifest">';
+  const i = out.indexOf(open);
+  if (i < 0) return out;
+  const s = i + open.length;
+  const e = out.indexOf('</script>', s);
+  const manifest = JSON.parse(out.substring(s, e).trim());
+  let changed = false;
+  for (const key of Object.keys(manifest)) {
+    const a = manifest[key];
+    if (!a || a.mime !== 'text/javascript' || !a.data) continue;
+    const buf = Buffer.from(a.data, 'base64');
+    let js = a.compressed ? zlib.gunzipSync(buf).toString('utf8') : buf.toString('utf8');
+    let next = js;
+    for (const [url, local] of Object.entries(VENDOR_MAP)) next = next.split(url).join(local);
+    if (next !== js) {
+      const outBuf = a.compressed ? zlib.gzipSync(Buffer.from(next, 'utf8')) : Buffer.from(next, 'utf8');
+      a.data = outBuf.toString('base64');
+      changed = true;
+    }
+  }
+  if (!changed) return out;
+  return out.substring(0, s) + '\n' + JSON.stringify(manifest) + '\n' + out.substring(e);
+}
+
 function buildPage(srcFile, seoKey, markers) {
   const src    = fs.readFileSync(path.join(__dirname, 'src', srcFile), 'utf8');
   const tStart = src.indexOf(TEMPLATE_OPEN) + TEMPLATE_OPEN.length;
@@ -334,6 +369,9 @@ function buildPage(srcFile, seoKey, markers) {
   out = out.replace('<title>Bundled Page</title>', seoHead(seoKey));
   out = out.replace('</body>\n</html>', fallback + '\n</body>\n</html>');
 
+  // Point the bundled app at self-hosted React/Babel instead of unpkg.
+  out = selfHostBundle(out);
+
   return out;
 }
 
@@ -359,11 +397,11 @@ function copyStatic(src, dest) {
   if (!fs.existsSync(src)) return;
   fs.mkdirSync(dest, { recursive: true });
   for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
-    if (entry.isDirectory()) continue;
     const s = path.join(src, entry.name);
-    if (entry.name.endsWith('.b64')) {
-      const out = entry.name.slice(0, -4);
-      fs.writeFileSync(path.join(dest, out), Buffer.from(fs.readFileSync(s, 'utf8'), 'base64'));
+    if (entry.isDirectory()) {
+      copyStatic(s, path.join(dest, entry.name));   // recurse (e.g. static/vendor)
+    } else if (entry.name.endsWith('.b64')) {
+      fs.writeFileSync(path.join(dest, entry.name.slice(0, -4)), Buffer.from(fs.readFileSync(s, 'utf8'), 'base64'));
     } else {
       fs.copyFileSync(s, path.join(dest, entry.name));
     }
