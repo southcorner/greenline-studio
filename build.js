@@ -319,6 +319,9 @@ function buildPage(srcFile, seoKey, markers) {
   // Delegate first so it registers even if a later script stalls; then SEO, then gtag.
   const templateHeadInject = '\n' + copyDelegateScript() + '\n  ' + seoHead(seoKey) + '\n  ' + gtagHead() + '\n';
   html = html.replace('</head>', templateHeadInject + '</head>');
+  // Also set lang on the TEMPLATE <html> — the bundler swaps documentElement to
+  // it, so without this the rendered DOM has no lang (only the wiped outer head).
+  html = html.replace('<html>', `<html lang="${esc(site.locale)}">`);
 
   // Re-encode: JSON.stringify then escape closing tags to prevent </script> in output
   const reEncoded = JSON.stringify(html).replace(/<\//g, '<\\u002F');
