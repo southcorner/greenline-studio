@@ -51,12 +51,16 @@
     "proc4_title": "Operate",
     "proc4_desc": "We stay on, optimising, merchandising, keeping the line up.",
     "cta_h2": "Let's build something that grows.",
-    "cta_sub": "Tell us where you are and where you want to be. We'll map the straightest line to get there."
+    "cta_sub": "Tell us where you are and where you want to be. We'll map the straightest line to get there.",
+    "svc8_title": "Custom ERP Systems",
+    "svc8_desc": "Purpose-built ERP that runs your operations, inventory, orders, purchasing and reporting, synced with your storefront.",
+    "svc9_title": "CRM Systems",
+    "svc9_desc": "CRM tailored to your sales flow, leads, pipelines and follow-ups in one dashboard, so no enquiry slips through."
   },
   "services": {
     "sint_h1_before": "One studio for the<br>whole commerce ",
     "sint_h1_highlight": "stack.",
-    "sint_desc": "From the storefront you build to the marketplaces you sell on and the campaigns that drive demand, seven services, one accountable partner.",
+    "sint_desc": "From the storefront you build to the marketplaces you sell on and the campaigns that drive demand, nine services, one accountable partner.",
     "s1_h2": "Storefronts engineered to convert.",
     "s1_body": "Custom websites and headless builds, fast by default. We sweat Core Web Vitals, SEO and the details that turn visits into orders.",
     "s2_h2": "Ready to sell from day one.",
@@ -79,6 +83,10 @@
     "tier3_name": "Strategy sprint",
     "tier3_desc": "A focused audit and roadmap when you need direction before you commit to a build.",
     "cta_h2": "Tell us what you sell. We'll handle the rest.",
-    "cta_sub": "One conversation to map the straightest line from where you are to where you want to be."
+    "cta_sub": "One conversation to map the straightest line from where you are to where you want to be.",
+    "s8_h2": "Your operations, in one system.",
+    "s8_body": "Custom ERP built around how your business actually runs, inventory, orders, purchasing, accounting and reporting in one place, synced with your storefront and marketplaces.",
+    "s9_h2": "Know every customer. Close every lead.",
+    "s9_body": "CRM systems tailored to your sales flow, leads, pipelines, follow-ups and customer history in one dashboard, so no enquiry slips through and every repeat customer feels known."
   }
 }
