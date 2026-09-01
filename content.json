@@ -54,13 +54,15 @@
     "cta_sub": "Tell us where you are and where you want to be. We'll map the straightest line to get there.",
     "svc8_title": "Custom ERP Systems",
     "svc8_desc": "Purpose-built ERP that runs your operations, inventory, orders, purchasing and reporting, synced with your storefront.",
+    "svc10_title": "Native App Development",
+    "svc10_desc": "Native iOS and Android apps that put your storefront in every customer's pocket, fast, reliable and on-brand.",
     "svc9_title": "CRM Systems",
     "svc9_desc": "CRM tailored to your sales flow, leads, pipelines and follow-ups in one dashboard, so no enquiry slips through."
   },
   "services": {
     "sint_h1_before": "One studio for the<br>whole commerce ",
     "sint_h1_highlight": "stack.",
-    "sint_desc": "From the storefront you build to the marketplaces you sell on and the campaigns that drive demand, nine services, one accountable partner.",
+    "sint_desc": "From the storefront you build to the marketplaces you sell on and the campaigns that drive demand, ten services, one accountable partner.",
     "s1_h2": "Storefronts engineered to convert.",
     "s1_body": "Custom websites and headless builds, fast by default. We sweat Core Web Vitals, SEO and the details that turn visits into orders.",
     "s2_h2": "Ready to sell from day one.",
@@ -86,6 +88,8 @@
     "cta_sub": "One conversation to map the straightest line from where you are to where you want to be.",
     "s8_h2": "Your operations, in one system.",
     "s8_body": "Custom ERP built around how your business actually runs, inventory, orders, purchasing, accounting and reporting in one place, synced with your storefront and marketplaces.",
+    "s10_h2": "Your store, native on every phone.",
+    "s10_body": "Native iOS and Android apps built for commerce, fast, reliable and on-brand, engineered for the performance and retention a mobile-first audience expects. From storefront to checkout to push notifications, we ship apps people keep.",
     "s9_h2": "Know every customer. Close every lead.",
     "s9_body": "CRM systems tailored to your sales flow, leads, pipelines, follow-ups and customer history in one dashboard, so no enquiry slips through and every repeat customer feels known."
   }
