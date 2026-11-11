@@ -1,0 +1,24 @@
+{{> nav}}
+
+<!-- This page loads only after a successful booking form submission, so it is the place to fire
+     a Google Ads lead conversion. Once the conversion action exists, add its event to
+     build.js next to the gtag config, e.g. gtag('event','conversion',{send_to:'AW-…/LABEL'}). -->
+<main id="main">
+  <section class="ty">
+    <div class="wrap">
+      <div class="ty-panel glass tint">
+        <span class="ty-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path class="s-g" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M4 12.5l5 5L20 6.5"></path></svg></span>
+        <p class="label">Request received</p>
+        <h1>Thanks, we’re on <span class="u">it.</span></h1>
+        <p class="lead">Your request is in. A member of the studio will read it and reply within one business day.</p>
+        <div class="cta-row">
+          <a class="btn btn-p" href="/">Back to home<span class="arr"></span></a>
+          <a class="btn btn-g glass" href="/services">Explore services</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+{{> footer}}
+{{> booking}}

@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "node build.js",
-    "inject-markers": "node scripts/inject-markers.js"
+    "build": "node build.js"
   },
   "engines": {
     "node": ">=18"

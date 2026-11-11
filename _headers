@@ -4,15 +4,24 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), browsing-topics=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://www.googletagmanager.com; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: blob: https://fonts.gstatic.com; img-src 'self' data: blob: https://cdn.simpleicons.org https://www.googletagmanager.com https://www.google-analytics.com; connect-src 'self' blob: https://api.web3forms.com https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://api.web3forms.com; object-src 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://googleads.g.doubleclick.net https://www.googleadservices.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://www.googletagmanager.com https://*.google-analytics.com https://*.doubleclick.net https://google.com https://*.google.com https://*.google.co.in https://*.googleadservices.com https://*.googlesyndication.com; connect-src 'self' https://api.web3forms.com https://www.googletagmanager.com https://*.google-analytics.com https://*.doubleclick.net https://google.com https://*.google.com https://*.google.co.in https://*.googleadservices.com https://*.googlesyndication.com; frame-src https://www.googletagmanager.com https://*.doubleclick.net; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
 
 /vendor/*
   Cache-Control: public, max-age=31536000, immutable
+
+/work/*
+  Cache-Control: public, max-age=604800
 
 /index.html
   Cache-Control: no-cache
 
 /services.html
+  Cache-Control: no-cache
+
+/thank-you.html
   Cache-Control: no-cache
 
 /sw.js

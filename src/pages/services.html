@@ -1,0 +1,45 @@
+{{> nav}}
+
+<main id="main">
+  <section class="shero" id="top">
+    <div class="wrap">
+      <p class="label">What we do</p>
+      <h1>{{{services.sint_h1_before}}}<span class="u">{{services.sint_h1_highlight}}</span></h1>
+      <p class="lead">{{services.sint_desc}}</p>
+      <nav class="chips" aria-label="Services on this page">{{{gen.chips}}}</nav>
+    </div>
+  </section>
+
+  <div class="srows">
+    {{{gen.rows}}}
+  </div>
+
+  <section class="sec" id="engage">
+    <div class="wrap">
+      <p class="label">How we engage</p>
+      <h2 data-rv>{{services.pricing_h2}}</h2>
+      <div class="tiers">
+        <article class="tier glass"><small>Project</small><h3>{{services.tier1_name}}</h3><p>{{services.tier1_desc}}</p></article>
+        <article class="tier glass tint"><small>Retainer · Popular</small><h3>{{services.tier2_name}}</h3><p>{{services.tier2_desc}}</p></article>
+        <article class="tier glass"><small>Consulting</small><h3>{{services.tier3_name}}</h3><p>{{services.tier3_desc}}</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta" id="contact">
+    <div class="wrap">
+      <div class="cta-panel glass tint">
+        <p class="label">Let’s build</p>
+        <h2 data-rv>{{services.cta_h2}}</h2>
+        <p class="sub" data-rv style="--d:1">{{services.cta_sub}}</p>
+        <div class="cta-row">
+          <button class="btn btn-p" type="button" id="cta-start" data-book>Start a project<span class="arr"></span></button>
+          <div class="mail glass"><span>{{site.email}}</span><button type="button" id="cta-copy" data-copy="{{site.email}}" data-copy-label>Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+{{> footer}}
+{{> booking}}

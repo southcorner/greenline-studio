@@ -1,0 +1,171 @@
+{{> nav}}
+
+<nav class="pager glass" id="pager" aria-label="Jump to a service">{{{gen.pager}}}</nav>
+
+<main id="main">
+  <section class="hero snap" id="home">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="label">{{home.hero_eyebrow}}</p>
+        <h1>{{{home.hero_h1_before}}}<span class="u">{{home.hero_h1_highlight}}</span></h1>
+        <p class="lead">{{home.hero_sub}}</p>
+        <div class="cta-row">
+          <button class="btn btn-p" type="button" id="hero-start" data-book>Start a project<span class="arr"></span></button>
+          <a class="btn btn-g glass" href="#work">See our work</a>
+        </div>
+      </div>
+      <div class="hero-cards">
+        <div class="mcard glass tint">
+          <small>{{home.metric_label}}</small>
+          <b><span data-count="{{home.metric_num}}" data-dec="1">{{home.metric_num}}</span><i>×</i></b>
+          <p>{{home.metric_sub}}</p>
+          <svg viewBox="0 0 300 46" preserveAspectRatio="none" aria-hidden="true"><polyline class="s-g" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="0,41 42,37 84,39 126,29 168,31 210,18 252,14 300,4"></polyline></svg>
+        </div>
+        <div class="lcard glass">
+          <small><span class="dot"></span>{{home.card_eyebrow}}</small>
+          <strong>{{home.card_title}}</strong>
+          <div class="tags"><span class="tag">{{home.card_tag1}}</span><span class="tag">{{home.card_tag2}}</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mq-sec" aria-label="Clients and platforms">
+    <div class="wrap">
+      <div class="mq-panel glass">
+        <div class="mq-row">
+          <div class="mq-lab">{{home.tb_label}}</div>
+          <div class="mq"><div class="mq-track">{{{gen.clients}}}</div></div>
+        </div>
+        <div class="mq-row">
+          <div class="mq-lab">Platforms we work on</div>
+          <div class="mq rev"><div class="mq-track">{{{gen.platforms}}}</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="studio">
+    <div class="wrap why-grid">
+      <div class="why-head">
+        <p class="label">Why Greenline</p>
+        <h2 data-rv>One senior team for the whole store.</h2>
+        <p class="sub" data-rv style="--d:1">We build, run and grow your store end to end. No handoffs, no outsourcing. Just specialists who have done this for years.</p>
+      </div>
+      <ul class="why-list glass">
+        <li><h3>In-house designers</h3><p>Product and brand designers on our own team. Nothing is outsourced.</p></li>
+        <li><h3>Dedicated ad managers</h3><p>A named manager runs your ad accounts and budgets day to day.</p></li>
+        <li><h3>9+ years in ecommerce</h3><p>Nearly a decade of building, scaling and operating online stores.</p></li>
+        <li><h3>Professional consultation</h3><p>An audit and a plan first, so the build starts in the right direction.</p></li>
+        <li><h3>Product design &amp; branding</h3><p>From first sketch to production-ready specs and a brand people remember.</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec svc-sec" id="services">
+    <div class="wrap">
+      <div class="svc-head">
+        <p class="label">What we do</p>
+        <h2 data-rv>{{home.services_h2}}</h2>
+        <p class="sub" data-rv style="--d:1">{{home.services_subline}}</p>
+      </div>
+      <div class="svc-list" id="svc-list">
+      {{{gen.home_services}}}
+      </div>
+      <a class="all-bar glass tint" href="/services">
+        <span><small>Full capabilities</small><strong>See everything we do</strong></span>
+        <span class="all-go">Services page<span class="arr"></span></span>
+      </a>
+    </div>
+  </section>
+
+  <section class="nums snap" id="numbers">
+    <div class="wrap">
+      <p class="label">The line goes up</p>
+      <div class="nums-grid">
+        <div class="num glass"><b data-count="120" data-suf="+">120+</b><span>commerce builds shipped</span></div>
+        <div class="num glass"><b data-count="38" data-pre="+" data-suf="%">+38%</b><span>median conversion lift</span></div>
+        <div class="num glass"><b data-count="9" data-suf=" yrs">9 yrs</b><span>building for commerce</span></div>
+        <div class="num glass"><b data-count="98" data-suf="%">98%</b><span>client retention rate</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="work">
+    <div class="wrap">
+      <p class="label">Selected work</p>
+      <h2 data-rv>{{home.work_h2}}</h2>
+      <div class="work-grid">
+        <article class="case case-a glass">
+          <div class="shot" data-sc><img src="/work/battalion.webp" width="1899" height="891" loading="lazy" decoding="async" alt="{{home.case1_client}} online bike store built by Greenline"></div>
+          <div class="case-b">
+            <div class="tags"><span class="tag">Shopify Plus</span><span class="tag">Headless</span></div>
+            <h3>{{home.case1_client}}</h3>
+            <p>{{home.case1_desc}}</p>
+            <div class="kpis"><div><b>+38%</b><span>Conversion</span></div><div><b>1.4s</b><span>LCP</span></div><div><b>2.1×</b><span>Revenue</span></div></div>
+          </div>
+        </article>
+        <article class="case glass">
+          <div class="shot" data-sc><img src="/work/katana.webp" width="1897" height="941" loading="lazy" decoding="async" alt="{{home.case2_client}} badminton racket store built by Greenline"></div>
+          <div class="case-b">
+            <div class="tags"><span class="tag">Ops retainer</span></div>
+            <h3>{{home.case2_client}}</h3>
+            <p>{{home.case2_desc}}</p>
+          </div>
+        </article>
+        <article class="case glass">
+          <div class="shot" data-sc>
+            <div class="vis w169" data-io role="img" aria-label="Illustration of a searchable product catalogue with inventory tiles">
+              <div class="vis-in">
+                <div class="pcard" style="width:100%">
+                  <div class="row"><span class="pill" style="flex:1">Search 4,600 SKUs</span><span class="mbtn">Find</span></div>
+                  <div class="g3">
+                    <div class="kc"><div class="blk t1" style="height:2.4em"></div><div class="ln"></div></div>
+                    <div class="kc"><div class="blk" style="height:2.4em"></div><div class="ln"></div></div>
+                    <div class="kc won"><div class="blk t2" style="height:2.4em"></div><div class="ln g"></div></div>
+                  </div>
+                </div>
+                <span class="chip" style="right:6%;top:9%"><b>3.2×</b> faster search</span>
+              </div>
+            </div>
+          </div>
+          <div class="case-b">
+            <div class="tags"><span class="tag">Web dev</span></div>
+            <h3>{{home.case3_client}}</h3>
+            <p>{{home.case3_desc}}</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="process">
+    <div class="wrap">
+      <p class="label">How we work</p>
+      <h2 data-rv>{{home.process_h2}}</h2>
+      <ol class="steps" id="steps">
+        <li class="step glass"><small>01</small><h3>{{home.proc1_title}}</h3><p>{{home.proc1_desc}}</p></li>
+        <li class="step glass"><small>02</small><h3>{{home.proc2_title}}</h3><p>{{home.proc2_desc}}</p></li>
+        <li class="step glass"><small>03</small><h3>{{home.proc3_title}}</h3><p>{{home.proc3_desc}}</p></li>
+        <li class="step glass"><small>04</small><h3>{{home.proc4_title}}</h3><p>{{home.proc4_desc}}</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="cta snap" id="contact">
+    <div class="wrap">
+      <div class="cta-panel glass tint">
+        <p class="label">Let’s build</p>
+        <h2 data-rv>{{home.cta_h2}}</h2>
+        <p class="sub" data-rv style="--d:1">{{home.cta_sub}}</p>
+        <div class="cta-row">
+          <button class="btn btn-p" type="button" id="cta-start" data-book>Start a project<span class="arr"></span></button>
+          <div class="mail glass"><span>{{site.email}}</span><button type="button" id="cta-copy" data-copy="{{site.email}}" data-copy-label>Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+{{> footer}}
+{{> booking}}

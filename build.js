@@ -1,32 +1,36 @@
 'use strict';
-const fs   = require('fs');
+/* Static build for greenlinestudio.in.
+   Pages are plain HTML generated from src/pages + src/partials, with copy pulled from
+   content.json (the file the /admin CMS edits) and SEO settings from seo.json.
+   No client-side framework: the output is HTML, one stylesheet and one script. */
+const fs = require('fs');
 const path = require('path');
-const zlib = require('zlib');
+const crypto = require('crypto');
 
-const content = JSON.parse(fs.readFileSync(path.join(__dirname, 'content.json'), 'utf8'));
-const TEMPLATE_OPEN = '<script type="__bundler/template">';
+const ROOT = __dirname;
+const DIST = path.join(ROOT, 'dist');
+const read = p => fs.readFileSync(path.join(ROOT, p), 'utf8');
 
-// SEO config lives in its own file (seo.json), NOT content.json: the in-repo
-// CMS rewrites content.json from only its known home/services fields, so any
-// extra keys there get wiped on the next save. Reading SEO separately keeps it
-// CMS-proof. Fall back to safe defaults so a build never crashes on it.
+const content = JSON.parse(read('content.json'));
+const SERVICES = require('./src/data/services.js');
+
+/* SEO config lives in seo.json, not content.json: the CMS rewrites content.json from its
+   own fields, so anything extra there is wiped on the next save. Defaults keep a build alive. */
 const SEO_DEFAULTS = {
   site: {
     name: 'Greenline Commerce Studio', short_name: 'Greenline',
-    base_url: 'https://greenline.studio', locale: 'en',
-    email: 'hello@greenlinestudio.in', twitter: '', theme_color: '#0C1210',
-    og_image: '/og-image.png', founding_year: '2026', area_served: 'Worldwide',
-    service_list: [],
+    base_url: 'https://greenlinestudio.in', locale: 'en',
+    email: 'hello@greenlinestudio.in', twitter: '', theme_color: '#0A0F0D', gtag_id: '',
+    og_image: '/og-image.png', founding_year: '2026', area_served: 'Worldwide', service_list: [],
   },
   seo: {
     home:     { title: 'Greenline Commerce Studio', description: '', path: '/',         keywords: '' },
     services: { title: 'Services — Greenline',       description: '', path: '/services', keywords: '' },
   },
 };
-
 let seoConfig = SEO_DEFAULTS;
 try {
-  const loaded = JSON.parse(fs.readFileSync(path.join(__dirname, 'seo.json'), 'utf8'));
+  const loaded = JSON.parse(read('seo.json'));
   seoConfig = {
     site: Object.assign({}, SEO_DEFAULTS.site, loaded.site),
     seo:  Object.assign({}, SEO_DEFAULTS.seo,  loaded.seo),
@@ -34,437 +38,252 @@ try {
 } catch (e) {
   console.warn('  WARNING: seo.json missing or invalid — using SEO defaults:', e.message);
 }
-
-// Marker → content value maps for each page
-const HOME_MARKERS = {
-  '__GL_HERO_EYEBROW__':     content.home.hero_eyebrow,
-  '__GL_METRIC_LABEL__':    content.home.metric_label,
-  '__GL_METRIC_NUM__':      content.home.metric_num,
-  '__GL_METRIC_SUB__':      content.home.metric_sub,
-  '__GL_CARD_EYEBROW__':    content.home.card_eyebrow,
-  '__GL_CARD_TITLE__':      content.home.card_title,
-  '__GL_CARD_TAG1__':       content.home.card_tag1,
-  '__GL_CARD_TAG2__':       content.home.card_tag2,
-  '__GL_TB_LABEL__':        content.home.tb_label,
-  '__GL_TB_C1__':           content.home.tb_c1,
-  '__GL_TB_C2__':           content.home.tb_c2,
-  '__GL_TB_C3__':           content.home.tb_c3,
-  '__GL_TB_C4__':           content.home.tb_c4,
-  '__GL_TB_C5__':           content.home.tb_c5,
-  '__GL_TB_C6__':           content.home.tb_c6,
-  '__GL_HERO_H1_BEFORE__':   content.home.hero_h1_before,
-  '__GL_HERO_H1_HIGHLIGHT__': content.home.hero_h1_highlight,
-  '__GL_HERO_SUB__':          content.home.hero_sub,
-  '__GL_SERVICES_H2__':       content.home.services_h2,
-  '__GL_SERVICES_SUBLINE__':  content.home.services_subline,
-  '__GL_SVC1_TITLE__':        content.home.svc1_title,
-  '__GL_SVC1_DESC__':         content.home.svc1_desc,
-  '__GL_SVC2_TITLE__':        content.home.svc2_title,
-  '__GL_SVC2_DESC__':         content.home.svc2_desc,
-  '__GL_SVC3_TITLE__':        content.home.svc3_title,
-  '__GL_SVC3_DESC__':         content.home.svc3_desc,
-  '__GL_SVC4_TITLE__':        content.home.svc4_title,
-  '__GL_SVC4_DESC__':         content.home.svc4_desc,
-  '__GL_SVC5_TITLE__':        content.home.svc5_title,
-  '__GL_SVC5_DESC__':         content.home.svc5_desc,
-  '__GL_SVC6_TITLE__':        content.home.svc6_title,
-  '__GL_SVC6_DESC__':         content.home.svc6_desc,
-  '__GL_SVC7_TITLE__':        content.home.svc7_title,
-  '__GL_SVC7_DESC__':         content.home.svc7_desc,
-  '__GL_SVC8_TITLE__':        content.home.svc8_title,
-  '__GL_SVC8_DESC__':         content.home.svc8_desc,
-  '__GL_SVC9_TITLE__':        content.home.svc9_title,
-  '__GL_SVC9_DESC__':         content.home.svc9_desc,
-  '__GL_SVC10_TITLE__':       content.home.svc10_title,
-  '__GL_SVC10_DESC__':        content.home.svc10_desc,
-  '__GL_WORK_H2__':           content.home.work_h2,
-  '__GL_CASE1_CLIENT__':      content.home.case1_client,
-  '__GL_CASE1_DESC__':        content.home.case1_desc,
-  '__GL_CASE2_CLIENT__':      content.home.case2_client,
-  '__GL_CASE2_DESC__':        content.home.case2_desc,
-  '__GL_CASE3_CLIENT__':      content.home.case3_client,
-  '__GL_CASE3_DESC__':        content.home.case3_desc,
-  '__GL_PROCESS_H2__':        content.home.process_h2,
-  '__GL_PROC1_TITLE__':       content.home.proc1_title,
-  '__GL_PROC1_DESC__':        content.home.proc1_desc,
-  '__GL_PROC2_TITLE__':       content.home.proc2_title,
-  '__GL_PROC2_DESC__':        content.home.proc2_desc,
-  '__GL_PROC3_TITLE__':       content.home.proc3_title,
-  '__GL_PROC3_DESC__':        content.home.proc3_desc,
-  '__GL_PROC4_TITLE__':       content.home.proc4_title,
-  '__GL_PROC4_DESC__':        content.home.proc4_desc,
-  '__GL_CTA_H2__':            content.home.cta_h2,
-  '__GL_CTA_SUB__':           content.home.cta_sub,
-};
-
-const SERVICES_MARKERS = {
-  '__GL_SINT_H1_BEFORE__':    content.services.sint_h1_before,
-  '__GL_SINT_H1_HIGHLIGHT__': content.services.sint_h1_highlight,
-  '__GL_SINT_DESC__':         content.services.sint_desc,
-  '__GL_S1_H2__':             content.services.s1_h2,
-  '__GL_S1_BODY__':           content.services.s1_body,
-  '__GL_S2_H2__':             content.services.s2_h2,
-  '__GL_S2_BODY__':           content.services.s2_body,
-  '__GL_S3_H2__':             content.services.s3_h2,
-  '__GL_S3_BODY__':           content.services.s3_body,
-  '__GL_S4_H2__':             content.services.s4_h2,
-  '__GL_S4_BODY__':           content.services.s4_body,
-  '__GL_S5_H2__':             content.services.s5_h2,
-  '__GL_S5_BODY__':           content.services.s5_body,
-  '__GL_S6_H2__':             content.services.s6_h2,
-  '__GL_S6_BODY__':           content.services.s6_body,
-  '__GL_S7_H2__':             content.services.s7_h2,
-  '__GL_S7_BODY__':           content.services.s7_body,
-  '__GL_S8_H2__':             content.services.s8_h2,
-  '__GL_S8_BODY__':           content.services.s8_body,
-  '__GL_S9_H2__':             content.services.s9_h2,
-  '__GL_S9_BODY__':           content.services.s9_body,
-  '__GL_S10_H2__':            content.services.s10_h2,
-  '__GL_S10_BODY__':          content.services.s10_body,
-  '__GL_PRICING_H2__':        content.services.pricing_h2,
-  '__GL_TIER1_NAME__':        content.services.tier1_name,
-  '__GL_TIER1_DESC__':        content.services.tier1_desc,
-  '__GL_TIER2_NAME__':        content.services.tier2_name,
-  '__GL_TIER2_DESC__':        content.services.tier2_desc,
-  '__GL_TIER3_NAME__':        content.services.tier3_name,
-  '__GL_TIER3_DESC__':        content.services.tier3_desc,
-  '__GL_SCTA_H2__':           content.services.cta_h2,
-  '__GL_SCTA_SUB__':          content.services.cta_sub,
-};
-
 const site = seoConfig.site;
 
-// ── SEO helpers ───────────────────────────────────────────────────────────
-function esc(s) {
-  return String(s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+/* ── helpers ─────────────────────────────────────────────────────────────── */
+const esc = s => String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+const absUrl = p => /^https?:\/\//i.test(p) ? p : site.base_url.replace(/\/$/, '') + (p.startsWith('/') ? p : '/' + p);
+const pad = n => String(n).padStart(2, '0');
+const lookup = (ctx, p) => p.split('.').reduce((o, k) => (o == null ? undefined : o[k]), ctx);
+
+/* {{> partial}} includes, {{{path}}} raw, {{path}} escaped */
+function render(tpl, ctx) {
+  let out = tpl.replace(/\{\{>\s*([\w-]+)\s*\}\}/g, (m, name) => render(read('src/partials/' + name + '.html'), ctx));
+  const val = (p, where) => {
+    const v = lookup(ctx, p);
+    if (v === undefined) { console.warn('  WARNING: no value for {{' + p + '}} in ' + where); return ''; }
+    return v;
+  };
+  out = out.replace(/\{\{\{\s*([\w.]+)\s*\}\}\}/g, (m, p) => String(val(p, ctx.page)));
+  out = out.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (m, p) => esc(val(p, ctx.page)));
+  return out;
 }
 
-function absUrl(p) {
-  if (/^https?:\/\//i.test(p)) return p;
-  return site.base_url.replace(/\/$/, '') + (p.startsWith('/') ? p : '/' + p);
-}
+/* ── generated blocks ────────────────────────────────────────────────────── */
+const GLYPHS = [
+  '<path d="M4 20 20 4M13 4h7v7"></path>',
+  '<circle cx="12" cy="12" r="3.6"></circle><ellipse cx="12" cy="12" rx="10" ry="4.4" transform="rotate(-24 12 12)"></ellipse>',
+  '<path d="M4 11l8-6 8 6M4 18l8-6 8 6"></path>',
+  '<rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M8 16V8l4 5 4-5v8"></path>',
+  '<circle cx="12" cy="12" r="9"></circle><path d="M8.5 10h.01M15.5 10h.01M8 16c2.5-2 5.5-2 8 0"></path>',
+  '<path d="M12 3l9 5v8l-9 5-9-5V8z"></path>',
+];
+const PLATFORMS = ['Shopify', 'WooCommerce', 'Amazon', 'Flipkart', 'Meta', 'Google Ads', 'X'];
+/* each marquee set is printed twice so the CSS loop is seamless; the copy is hidden from assistive tech */
+const twice = html => html + '<span class="mq-dup" aria-hidden="true">' + html + '</span>';
 
-// Google tag (gtag.js) — emitted when site.gtag_id is set. Loaded as high in
-// the head as possible so Google Ads conversions and analytics fire on load.
-function gtagHead() {
-  const id = site.gtag_id;
-  if (!id) return '';
-  const safeId = String(id).replace(/[^A-Za-z0-9_-]/g, '');
-  // Inject gtag.js dynamically from a single inline script (no <script src>):
-  // the bundler boot awaits every src script in order, so a static gtag tag
-  // would block app init until it loads. Creating it at runtime keeps it async.
-  return '<!-- Google tag (gtag.js) --><script>' +
-    'window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}' +
-    'gtag("js",new Date());gtag("config","' + safeId + '");' +
-    '(function(){var g=document.createElement("script");g.async=true;' +
-    'g.src="https://www.googletagmanager.com/gtag/js?id=' + safeId + '";' +
-    'document.head.appendChild(g);})();</script>';
+function clientMarks() {
+  const names = [1, 2, 3, 4, 5, 6].map(i => content.home['tb_c' + i]).filter(Boolean);
+  return twice(names.map((n, i) =>
+    `<span class="wm wm-${i % 5}"><svg viewBox="0 0 24 24" aria-hidden="true">${GLYPHS[i % GLYPHS.length]}</svg>${esc(n)}</span>`).join(''));
 }
+const platformMarks = () => twice(PLATFORMS.map(p => `<span class="pm">${esc(p)}</span>`).join(''));
 
-// JSON-LD graph: Organization + WebSite on every page, plus a Service catalogue
-// on the services page. Inlined as a <script type="application/ld+json">.
+const visual = (s, i) =>
+  `<div class="vis glass" data-sc data-io role="img" aria-label="Illustration: ${esc(s.alt)}"><div class="vis-in">${s.visual()}</div></div>`;
+
+function homeServices() {
+  return SERVICES.map((s, i) => {
+    const n = i + 1;
+    return `<article class="svc" id="svc-${n}">
+        <div class="svc-media">${visual(s, i)}</div>
+        <div class="svc-body">
+          <span class="svc-n" aria-hidden="true">${pad(n)}</span>
+          <p class="kicker" data-rv>${esc(content.services['s' + n + '_h2'])}</p>
+          <h3 data-rv style="--d:1">${esc(content.home['svc' + n + '_title'])}</h3>
+          <p class="d" data-rv style="--d:2">${esc(content.home['svc' + n + '_desc'])}</p>
+          <a class="xlink" href="/services#s${n}">Explore<span class="arr"></span></a>
+        </div>
+      </article>`;
+  }).join('\n      ');
+}
+const pager = () => SERVICES.map((s, i) =>
+  `<a href="#svc-${i + 1}" data-svc="${i + 1}" aria-label="${esc(content.home['svc' + (i + 1) + '_title'])}" title="${esc(content.home['svc' + (i + 1) + '_title'])}"></a>`).join('');
+
+const serviceChips = () => SERVICES.map((s, i) =>
+  `<a class="chipl glass" href="#s${i + 1}"><i>${pad(i + 1)}</i>${esc(s.short)}</a>`).join('');
+
+function serviceRows() {
+  return SERVICES.map((s, i) => {
+    const n = i + 1;
+    return `<section class="srow" id="s${n}">
+      <div class="wrap srow-grid">
+        <div class="srow-media">${visual(s, i)}</div>
+        <div class="srow-body">
+          <p class="label">${pad(n)} / ${esc(s.label)}</p>
+          <h2 data-rv>${esc(content.services['s' + n + '_h2'])}</h2>
+          <p class="sub" data-rv style="--d:1">${esc(content.services['s' + n + '_body'])}</p>
+          <ul class="bul">${s.bullets.map(b => `<li>${esc(b)}</li>`).join('')}</ul>
+          <div class="tags">${s.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>
+        </div>
+      </div>
+    </section>`;
+  }).join('\n    ');
+}
+const formOptions = () => SERVICES.map((s, i) =>
+  `<label class="chk"><input type="checkbox" name="requirement" id="bk-req-${i + 1}" value="${esc(s.short)}"><span>${esc(s.short)}</span></label>`).join('');
+
+/* ── head ────────────────────────────────────────────────────────────────── */
 function jsonLd(seoKey) {
   const org = {
-    '@type': 'Organization',
-    '@id': absUrl('/#organization'),
-    name: site.name,
-    url: absUrl('/'),
-    email: site.email,
-    logo: absUrl('/favicon.svg'),
-    image: absUrl(site.og_image),
-    foundingDate: site.founding_year,
-    areaServed: site.area_served,
-    sameAs: [],
-    contactPoint: {
-      '@type': 'ContactPoint',
-      email: site.email,
-      contactType: 'sales',
-      areaServed: site.area_served,
-    },
+    '@type': 'Organization', '@id': absUrl('/#organization'), name: site.name, url: absUrl('/'),
+    email: site.email, logo: absUrl('/favicon.svg'), image: absUrl(site.og_image),
+    foundingDate: site.founding_year, areaServed: site.area_served,
+    contactPoint: { '@type': 'ContactPoint', email: site.email, contactType: 'sales', areaServed: site.area_served },
   };
   const website = {
-    '@type': 'WebSite',
-    '@id': absUrl('/#website'),
-    name: site.name,
-    url: absUrl('/'),
-    publisher: { '@id': absUrl('/#organization') },
-    inLanguage: site.locale,
+    '@type': 'WebSite', '@id': absUrl('/#website'), name: site.name, url: absUrl('/'),
+    publisher: { '@id': absUrl('/#organization') }, inLanguage: site.locale,
   };
   const graph = [org, website];
-
   if (seoKey === 'services') {
     graph.push({
-      '@type': 'OfferCatalog',
-      '@id': absUrl('/services#catalog'),
-      name: 'Commerce services',
+      '@type': 'OfferCatalog', '@id': absUrl('/services#catalog'), name: 'Commerce services',
       provider: { '@id': absUrl('/#organization') },
       itemListElement: site.service_list.map((name, i) => ({
-        '@type': 'Offer',
-        position: i + 1,
+        '@type': 'Offer', position: i + 1,
         itemOffered: { '@type': 'Service', name, provider: { '@id': absUrl('/#organization') } },
       })),
     });
   }
-
-  const data = { '@context': 'https://schema.org', '@graph': graph };
-  // Escape closing tags so the JSON can't break out of the <script> element.
   return '<script type="application/ld+json">' +
-    JSON.stringify(data).replace(/</g, '\\u003C') +
-    '</script>';
+    JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003C') + '</script>';
 }
 
-// Document-level click delegate for copy-to-clipboard buttons (keyed off
-// data-copy-email). Delegation is used instead of an inline onclick because the
-// design-tool React layer rejects string event handlers (React error #231);
-// a document listener is framework-agnostic and survives re-renders.
-function copyDelegateScript() {
-  return '<script>(function(){if(window.__glCopy)return;window.__glCopy=1;' +
-    'document.addEventListener("click",function(e){' +
-    'var b=e.target&&e.target.closest&&e.target.closest("[data-copy-email]");if(!b)return;' +
-    'e.preventDefault();var email=b.getAttribute("data-copy-email");' +
-    'var t=b.querySelector("[data-ct]")||b;var o=t.textContent;' +
-    'function f(s){t.textContent=s?"Copied!":"Press Ctrl+C";' +
-    'b.style.borderColor=s?"#36E08B":"#C0492F";' +
-    'setTimeout(function(){t.textContent=o;b.style.borderColor="#2A3431";},1600);}' +
-    'try{navigator.clipboard.writeText(email).then(function(){f(1);},function(){f(0);});}' +
-    'catch(x){f(0);}});})();</script>';
-}
-
-// Full <head> SEO block injected into the served wrapper (visible without JS).
-function seoHead(seoKey) {
-  const seo = seoConfig.seo[seoKey];
-  const canonical = absUrl(seo.path);
+function head(meta, v) {
+  const canonical = absUrl(meta.path);
   const ogImg = absUrl(site.og_image);
   const lines = [
-    `<title>${esc(seo.title)}</title>`,
-    `<meta name="viewport" content="width=device-width, initial-scale=1">`,
-    `<meta name="description" content="${esc(seo.description)}">`,
-    seo.keywords ? `<meta name="keywords" content="${esc(seo.keywords)}">` : '',
-    `<meta name="robots" content="index, follow, max-image-preview:large">`,
+    '<meta charset="utf-8">',
+    '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
+    `<title>${esc(meta.title)}</title>`,
+    `<meta name="description" content="${esc(meta.description)}">`,
+    meta.keywords ? `<meta name="keywords" content="${esc(meta.keywords)}">` : '',
+    `<meta name="robots" content="${meta.noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'}">`,
     `<meta name="theme-color" content="${esc(site.theme_color)}">`,
     `<link rel="canonical" href="${esc(canonical)}">`,
-    `<link rel="icon" type="image/svg+xml" href="/favicon.svg">`,
-    `<link rel="apple-touch-icon" href="/apple-touch-icon.png">`,
-    // Open Graph
-    `<meta property="og:type" content="website">`,
+    '<link rel="icon" type="image/svg+xml" href="/favicon.svg">',
+    '<link rel="apple-touch-icon" href="/apple-touch-icon.png">',
+  ];
+  if (!meta.noindex) lines.push(
+    '<meta property="og:type" content="website">',
     `<meta property="og:site_name" content="${esc(site.name)}">`,
-    `<meta property="og:title" content="${esc(seo.title)}">`,
-    `<meta property="og:description" content="${esc(seo.description)}">`,
+    `<meta property="og:title" content="${esc(meta.title)}">`,
+    `<meta property="og:description" content="${esc(meta.description)}">`,
     `<meta property="og:url" content="${esc(canonical)}">`,
     `<meta property="og:image" content="${esc(ogImg)}">`,
-    `<meta property="og:image:width" content="600">`,
-    `<meta property="og:image:height" content="315">`,
+    '<meta property="og:image:width" content="600">',
+    '<meta property="og:image:height" content="315">',
     `<meta property="og:locale" content="${esc(site.locale)}">`,
-    // Twitter
-    `<meta name="twitter:card" content="summary_large_image">`,
+    '<meta name="twitter:card" content="summary_large_image">',
     site.twitter ? `<meta name="twitter:site" content="${esc(site.twitter)}">` : '',
-    `<meta name="twitter:title" content="${esc(seo.title)}">`,
-    `<meta name="twitter:description" content="${esc(seo.description)}">`,
+    `<meta name="twitter:title" content="${esc(meta.title)}">`,
+    `<meta name="twitter:description" content="${esc(meta.description)}">`,
     `<meta name="twitter:image" content="${esc(ogImg)}">`,
-    jsonLd(seoKey),
-  ].filter(Boolean);
-  return lines.join('\n  ');
-}
-
-// Strip the rendered template down to clean, crawlable HTML for a <noscript>
-// fallback, so non-JS crawlers still receive the real page copy.
-function readableFallback(decodedHtml) {
-  let h = decodedHtml;
-  const bOpen = h.indexOf('<body');
-  if (bOpen >= 0) h = h.slice(h.indexOf('>', bOpen) + 1);
-  const bClose = h.lastIndexOf('</body>');
-  if (bClose >= 0) h = h.slice(0, bClose);
-
-  h = h
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<style[\s\S]*?<\/style>/gi, '')
-    .replace(/<svg[\s\S]*?<\/svg>/gi, '')
-    .replace(/<helmet[\s\S]*?<\/helmet>/gi, '')
-    .replace(/<noscript[\s\S]*?<\/noscript>/gi, '')
-    .replace(/<!--[\s\S]*?-->/g, '')
-    .replace(/<link[^>]*>/gi, '');
-
-  // Fill known template expressions, drop the rest.
-  h = h.replace(/\{\{\s*email\s*\}\}/g, site.email).replace(/\{\{[^}]*\}\}/g, '');
-
-  const keep = new Set(['h1','h2','h3','h4','h5','h6','p','ul','ol','li','a','nav','footer','header','section','article','strong','em','br']);
-  h = h.replace(/<(\/?)([a-zA-Z0-9-]+)([^>]*)>/g, (m, slash, tag, attrs) => {
-    tag = tag.toLowerCase();
-    if (!keep.has(tag)) return '';
-    if (tag === 'a' && !slash) {
-      const hm = attrs.match(/href="([^"]*)"/i);
-      return hm ? `<a href="${esc(hm[1])}">` : '<a>';
-    }
-    return '<' + slash + tag + '>';
-  });
-
-  h = h.replace(/[ \t]+/g, ' ').replace(/(\s*\n\s*){2,}/g, '\n').trim();
-  return '<noscript>\n<div id="seo-content">\n' + h + '\n</div>\n</noscript>';
-}
-
-// Rewrite third-party CDN script URLs baked into the bundler's app asset to
-// self-hosted /vendor copies — removes the unpkg supply-chain dependency (and
-// the boot stall when that CDN is slow/blocked). The app bundle is a gzipped,
-// base64 asset in the manifest, so we decode, swap URLs, and re-encode.
-const VENDOR_MAP = {
-  'https://unpkg.com/@babel/standalone@7.26.4/babel.min.js': '/vendor/babel.min.js',
-  'https://unpkg.com/react@18.3.1/umd/react.production.min.js': '/vendor/react.production.min.js',
-  'https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js': '/vendor/react-dom.production.min.js',
-};
-function selfHostBundle(out) {
-  const open = '<script type="__bundler/manifest">';
-  const i = out.indexOf(open);
-  if (i < 0) return out;
-  const s = i + open.length;
-  const e = out.indexOf('</script>', s);
-  const manifest = JSON.parse(out.substring(s, e).trim());
-  let changed = false;
-  for (const key of Object.keys(manifest)) {
-    const a = manifest[key];
-    if (!a || a.mime !== 'text/javascript' || !a.data) continue;
-    const buf = Buffer.from(a.data, 'base64');
-    let js = a.compressed ? zlib.gunzipSync(buf).toString('utf8') : buf.toString('utf8');
-    let next = js;
-    for (const [url, local] of Object.entries(VENDOR_MAP)) next = next.split(url).join(local);
-    if (next !== js) {
-      const outBuf = a.compressed ? zlib.gzipSync(Buffer.from(next, 'utf8')) : Buffer.from(next, 'utf8');
-      a.data = outBuf.toString('base64');
-      changed = true;
-    }
+    jsonLd(meta.key)
+  );
+  lines.push(
+    '<link rel="preconnect" href="https://fonts.googleapis.com">',
+    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
+    '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap">',
+    `<link rel="stylesheet" href="/assets/site.css?v=${v}">`,
+    /* marks that scripts run, before first paint, so scroll reveals never flash */
+    "<script>document.documentElement.className+=' js'</script>"
+  );
+  if (site.gtag_id) {
+    const id = String(site.gtag_id).replace(/[^A-Za-z0-9_-]/g, '');
+    lines.push(`<script async src="https://www.googletagmanager.com/gtag/js?id=${id}"></script>`,
+      `<script src="/assets/gtag.js?v=${v}"></script>`);
   }
-  if (!changed) return out;
-  return out.substring(0, s) + '\n' + JSON.stringify(manifest) + '\n' + out.substring(e);
+  if (meta.prefetch) lines.push(`<link rel="prefetch" href="${esc(meta.prefetch)}">`);
+  return lines.filter(Boolean).join('\n  ');
 }
 
-function buildPage(srcFile, seoKey, markers) {
-  const src    = fs.readFileSync(path.join(__dirname, 'src', srcFile), 'utf8');
-  const tStart = src.indexOf(TEMPLATE_OPEN) + TEMPLATE_OPEN.length;
-  const tEnd   = src.indexOf('</script>', tStart);
-  let html     = JSON.parse(src.substring(tStart, tEnd).trim());
-
-  for (const [marker, value] of Object.entries(markers)) {
-    html = html.split(marker).join(value);
-  }
-
-  // Verify no markers remain
-  const remaining = [...html.matchAll(/__GL_[A-Z0-9_]+__/g)].map(m => m[0]);
-  if (remaining.length > 0) {
-    console.warn(`  WARNING: unresolved markers in ${srcFile}:`, [...new Set(remaining)]);
-  }
-
-  // Build crawlable fallback from the resolved template before re-encoding.
-  const fallback = readableFallback(html);
-
-  // ── Inject SEO + analytics into the TEMPLATE head ──
-  // The bundler boot does documentElement.replaceWith(template), which discards
-  // the outer wrapper <head>. So tags that must survive into the live DOM (and
-  // run, e.g. gtag) have to live in the template head. We inject them before the
-  // template's </head>; the outer-head copy below is purely for non-JS crawlers
-  // that read the raw HTML and never execute the bundler.
-  // Delegate first so it registers even if a later script stalls; then SEO, then gtag.
-  const templateHeadInject = '\n' + copyDelegateScript() + '\n  ' + seoHead(seoKey) + '\n  ' + gtagHead() + '\n';
-  html = html.replace('</head>', templateHeadInject + '</head>');
-  // Also set lang on the TEMPLATE <html> — the bundler swaps documentElement to
-  // it, so without this the rendered DOM has no lang (only the wiped outer head).
-  html = html.replace('<html>', `<html lang="${esc(site.locale)}">`);
-
-  // Re-encode: JSON.stringify then escape closing tags to prevent </script> in output
-  const reEncoded = JSON.stringify(html).replace(/<\//g, '<\\u002F');
-  let out = src.substring(0, tStart) + '\n' + reEncoded + '\n' + src.substring(tEnd);
-
-  // ── Inject SEO into the served wrapper (what non-JS crawlers read) ──
-  // (This copy is wiped when the bundler swaps in the template; the template
-  // head injection above is what persists for JS clients and gtag.)
-  out = out.replace('<html>', `<html lang="${esc(site.locale)}">`);
-  out = out.replace('<title>Bundled Page</title>', seoHead(seoKey));
-  out = out.replace('</body>\n</html>', fallback + '\n</body>\n</html>');
-
-  // Point the bundled app at self-hosted React/Babel instead of unpkg.
-  out = selfHostBundle(out);
-
-  return out;
+function page(name, meta, v) {
+  const ctx = {
+    page: name, home: content.home, services: content.services, site, v,
+    gen: {
+      clients: clientMarks(), platforms: platformMarks(), home_services: homeServices(), pager: pager(),
+      chips: serviceChips(), rows: serviceRows(), form_options: formOptions(),
+    },
+  };
+  const body = render(read('src/pages/' + name + '.html'), ctx);
+  return `<!DOCTYPE html>
+<html lang="${esc(site.locale)}">
+<head>
+  ${head(meta, v)}
+</head>
+<body class="p-${name}">
+${body}
+<script src="/assets/site.js?v=${v}" defer></script>
+</body>
+</html>
+`;
 }
 
-function copyFile(src, dest) {
-  if (fs.existsSync(src)) fs.copyFileSync(src, dest);
-}
-
+/* ── files ───────────────────────────────────────────────────────────────── */
 function copyDir(src, dest) {
   if (!fs.existsSync(src)) return;
   fs.mkdirSync(dest, { recursive: true });
-  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
-    const s = path.join(src, entry.name);
-    const d = path.join(dest, entry.name);
-    if (entry.isDirectory()) copyDir(s, d);
-    else fs.copyFileSync(s, d);
+  for (const e of fs.readdirSync(src, { withFileTypes: true })) {
+    const s = path.join(src, e.name), d = path.join(dest, e.name);
+    if (e.isDirectory()) copyDir(s, d); else fs.copyFileSync(s, d);
   }
 }
-
-// Copy static assets into dist. Binary assets are stored base64-encoded as
-// "<name>.b64" text files (so the repo stays text-only and pushable); they are
-// decoded back to their real binary form on build.
+/* static assets; binary files stored as "<name>.b64" text are decoded on the way out */
 function copyStatic(src, dest) {
   if (!fs.existsSync(src)) return;
   fs.mkdirSync(dest, { recursive: true });
-  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
-    const s = path.join(src, entry.name);
-    if (entry.isDirectory()) {
-      copyStatic(s, path.join(dest, entry.name));   // recurse (e.g. static/vendor)
-    } else if (entry.name.endsWith('.b64')) {
-      fs.writeFileSync(path.join(dest, entry.name.slice(0, -4)), Buffer.from(fs.readFileSync(s, 'utf8'), 'base64'));
-    } else {
-      fs.copyFileSync(s, path.join(dest, entry.name));
-    }
+  for (const e of fs.readdirSync(src, { withFileTypes: true })) {
+    const s = path.join(src, e.name);
+    if (e.isDirectory()) copyStatic(s, path.join(dest, e.name));
+    else if (e.name.endsWith('.b64')) fs.writeFileSync(path.join(dest, e.name.slice(0, -4)), Buffer.from(fs.readFileSync(s, 'utf8'), 'base64'));
+    else fs.copyFileSync(s, path.join(dest, e.name));
   }
 }
-
-// robots.txt — allow everything except the CMS admin, point at the sitemap.
-function buildRobots() {
-  return [
-    'User-agent: *',
-    'Allow: /',
-    'Disallow: /admin/',
-    'Disallow: /admin',
-    '',
-    `Sitemap: ${absUrl('/sitemap.xml')}`,
-    '',
-  ].join('\n');
-}
-
-// sitemap.xml — one entry per public page, derived from the SEO config.
-function buildSitemap() {
+const robots = () => ['User-agent: *', 'Allow: /', 'Disallow: /admin/', 'Disallow: /admin', '', `Sitemap: ${absUrl('/sitemap.xml')}`, ''].join('\n');
+function sitemap() {
   const today = new Date().toISOString().slice(0, 10);
-  const urls = Object.values(seoConfig.seo).map(seo => (
-    '  <url>\n' +
-    `    <loc>${esc(absUrl(seo.path))}</loc>\n` +
-    `    <lastmod>${today}</lastmod>\n` +
-    `    <changefreq>monthly</changefreq>\n` +
-    `    <priority>${seo.path === '/' ? '1.0' : '0.8'}</priority>\n` +
-    '  </url>'
-  )).join('\n');
-  return '<?xml version="1.0" encoding="UTF-8"?>\n' +
-    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-    urls + '\n</urlset>\n';
+  const urls = Object.values(seoConfig.seo).map(s =>
+    `  <url>\n    <loc>${esc(absUrl(s.path))}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>${s.path === '/' ? '1.0' : '0.8'}</priority>\n  </url>`).join('\n');
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
 }
 
-// Build
-fs.mkdirSync(path.join(__dirname, 'dist'), { recursive: true });
+/* ── build ───────────────────────────────────────────────────────────────── */
+fs.rmSync(DIST, { recursive: true, force: true });
+fs.mkdirSync(path.join(DIST, 'assets'), { recursive: true });
 
-console.log('Building index.html...');
-fs.writeFileSync(path.join(__dirname, 'dist', 'index.html'),    buildPage('index.html',    'home',     HOME_MARKERS),     'utf8');
+const css = read('src/assets/site.css');
+const js = read('src/assets/site.js');
+const gtagJs = site.gtag_id
+  ? `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${String(site.gtag_id).replace(/[^A-Za-z0-9_-]/g, '')}');\n`
+  : '';
+/* one version stamp for every asset URL, so assets can be cached for a year */
+const v = crypto.createHash('sha1').update(css + js + gtagJs).digest('hex').slice(0, 10);
+fs.writeFileSync(path.join(DIST, 'assets', 'site.css'), css);
+fs.writeFileSync(path.join(DIST, 'assets', 'site.js'), js);
+if (gtagJs) fs.writeFileSync(path.join(DIST, 'assets', 'gtag.js'), gtagJs);
 
-console.log('Building services.html...');
-fs.writeFileSync(path.join(__dirname, 'dist', 'services.html'), buildPage('services.html', 'services', SERVICES_MARKERS), 'utf8');
+const pages = [
+  ['home', 'index.html', Object.assign({ key: 'home', prefetch: '/services' }, seoConfig.seo.home)],
+  ['services', 'services.html', Object.assign({ key: 'services', prefetch: '/' }, seoConfig.seo.services)],
+  ['thank-you', 'thank-you.html', { key: 'thank-you', noindex: true, path: '/thank-you',
+    title: 'Thank you — ' + site.name, description: 'Your request has reached Greenline. We reply within one business day.' }],
+];
+for (const [name, file, meta] of pages) {
+  console.log('Building ' + file + '...');
+  fs.writeFileSync(path.join(DIST, file), page(name, meta, v), 'utf8');
+}
 
 console.log('Writing robots.txt and sitemap.xml...');
-fs.writeFileSync(path.join(__dirname, 'dist', 'robots.txt'),  buildRobots(),  'utf8');
-fs.writeFileSync(path.join(__dirname, 'dist', 'sitemap.xml'), buildSitemap(), 'utf8');
+fs.writeFileSync(path.join(DIST, 'robots.txt'), robots(), 'utf8');
+fs.writeFileSync(path.join(DIST, 'sitemap.xml'), sitemap(), 'utf8');
 
-copyFile(path.join(__dirname, 'sw.js'),    path.join(__dirname, 'dist', 'sw.js'));
-copyFile(path.join(__dirname, '_headers'), path.join(__dirname, 'dist', '_headers'));
-copyDir( path.join(__dirname, 'admin'),    path.join(__dirname, 'dist', 'admin'));
-copyStatic(path.join(__dirname, 'static'), path.join(__dirname, 'dist'));
+fs.copyFileSync(path.join(ROOT, 'sw.js'), path.join(DIST, 'sw.js'));
+fs.copyFileSync(path.join(ROOT, '_headers'), path.join(DIST, '_headers'));
+copyDir(path.join(ROOT, 'admin'), path.join(DIST, 'admin'));
+copyStatic(path.join(ROOT, 'static'), DIST);
 
-console.log('Build complete → dist/');
+console.log('Build complete → dist/  (assets v=' + v + ')');

@@ -2,5 +2,5 @@
 static/*.png
 node_modules/
 .claude/
-index.html
-services.html
+/index.html
+/services.html

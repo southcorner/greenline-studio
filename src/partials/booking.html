@@ -1,0 +1,59 @@
+<div class="bk" id="bk" hidden>
+  <div class="bk-panel glass" id="bk-panel" role="dialog" aria-modal="true" aria-labelledby="bk-title">
+    <button class="bk-x" type="button" id="bk-close" data-book-close aria-label="Close">✕</button>
+    <p class="label">Book a call</p>
+    <h2 class="bk-h" id="bk-title">Let’s map your line.</h2>
+    <p class="bk-sub">A few details about your brand and what you need, we’ll reply within one business day.</p>
+
+    <form id="bk-form" novalidate>
+      <div class="bk-prog">
+        <span class="bk-dots" aria-hidden="true"><i data-dot></i><i data-dot></i><i data-dot></i></span>
+        <span class="bk-step" id="bk-step" aria-live="polite">STEP 1 OF 3</span>
+      </div>
+
+      <fieldset class="bk-s" data-step>
+        <legend>What do you need?</legend>
+        <p class="bk-hint">Pick everything that applies.</p>
+        <div class="chk-grid">{{{gen.form_options}}}</div>
+        <p class="bk-err" id="bk-err-req" role="alert" hidden>Pick at least one service.</p>
+      </fieldset>
+
+      <fieldset class="bk-s" data-step hidden>
+        <legend>About your brand</legend>
+        <p class="bk-hint">So we come to the call prepared.</p>
+        <label class="fl" for="bk-brand">Brand name <b>*</b></label>
+        <input class="inp" id="bk-brand" name="brand" autocomplete="organization" placeholder="e.g. Harbor Goods">
+        <label class="fl" for="bk-company">Registered name <span>· optional</span></label>
+        <input class="inp" id="bk-company" name="company" placeholder="Legal entity name">
+        <label class="fl" for="bk-platforms">Platforms <span>· optional</span></label>
+        <input class="inp" id="bk-platforms" name="platforms" placeholder="Shopify, Amazon, Instagram…">
+      </fieldset>
+
+      <fieldset class="bk-s" data-step hidden>
+        <legend>How do we reach you?</legend>
+        <p class="bk-hint">One reply, within one business day.</p>
+        <label class="fl" for="bk-contact">Contact name <b>*</b></label>
+        <input class="inp" id="bk-contact" name="contact" autocomplete="name" placeholder="Your full name">
+        <div class="fl-2">
+          <div>
+            <label class="fl" for="bk-email">Email <b>*</b></label>
+            <input class="inp" id="bk-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@brand.com">
+          </div>
+          <div>
+            <label class="fl" for="bk-mobile">Mobile <span>· optional</span></label>
+            <input class="inp" id="bk-mobile" name="mobile" type="tel" inputmode="tel" autocomplete="tel" placeholder="+1 555 000 0000">
+          </div>
+        </div>
+      </fieldset>
+
+      <input class="bk-hp" type="checkbox" name="botcheck" id="bk-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <p class="bk-err" id="bk-err-send" role="alert" hidden>Couldn’t send just now. Please email {{site.email}}.</p>
+
+      <div class="bk-actions">
+        <button class="btn btn-g glass" type="button" id="bk-back" hidden>Back</button>
+        <button class="btn btn-p" type="submit" id="bk-next">Continue<span class="arr"></span></button>
+      </div>
+      <p class="bk-foot">NO SPAM · ONE REPLY · ONE BUSINESS DAY</p>
+    </form>
+  </div>
+</div>

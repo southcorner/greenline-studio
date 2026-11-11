@@ -1,39 +1,37 @@
-const CACHE_NAME = 'greenline-v3';
-const PAGES = ['/', '/services'];
+/* Network-first for page navigations, with the last good copy as an offline fallback.
+   Pages always come fresh from the network, so a deploy shows up on the next visit. */
+const CACHE = 'greenline-v4';
 
-self.addEventListener('install', function(e) {
-  e.waitUntil(caches.open(CACHE_NAME).then(function(c) { return c.addAll(PAGES); }));
-  self.skipWaiting();
+self.addEventListener('install', () => { self.skipWaiting(); });
+
+self.addEventListener('activate', (e) => {
+  e.waitUntil((async () => {
+    const keys = await caches.keys();
+    const old = keys.filter((k) => k !== CACHE);
+    await Promise.all(old.map((k) => caches.delete(k)));
+    await self.clients.claim();
+    /* Upgrading from an older worker that served cached pages first: reload open tabs once
+       so nobody is left looking at the previous version of the site. */
+    if (old.length) {
+      const tabs = await self.clients.matchAll({ type: 'window' });
+      tabs.forEach((t) => { if (t.url && 'navigate' in t) t.navigate(t.url).catch(() => {}); });
+    }
+  })());
 });
 
-self.addEventListener('activate', function(e) {
-  e.waitUntil(caches.keys().then(function(keys) {
-    return Promise.all(
-      keys.filter(function(k) { return k !== CACHE_NAME; })
-          .map(function(k) { return caches.delete(k); })
-    );
-  }));
-  self.clients.claim();
-});
-
-self.addEventListener('fetch', function(e) {
+self.addEventListener('fetch', (e) => {
   if (e.request.mode !== 'navigate') return;
-  e.respondWith(
-    caches.open(CACHE_NAME).then(function(cache) {
-      return cache.match(e.request).then(function(cached) {
-        // Fetch by URL — avoids "navigate mode" restrictions on re-fetching e.request
-        var networkFetch = fetch(e.request.url).then(function(res) {
-          if (res && res.status === 200) cache.put(e.request, res.clone());
-          return res;
-        });
-        if (cached) {
-          // Serve cache instantly; update in background, silencing background failures
-          networkFetch.catch(function() {});
-          return cached;
-        }
-        // No cache yet — go to network; let errors propagate (no silent swallow)
-        return networkFetch;
-      });
-    })
-  );
+  if (new URL(e.request.url).pathname.startsWith('/admin')) return;
+  e.respondWith((async () => {
+    try {
+      const res = await fetch(e.request);
+      if (res && res.status === 200) {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
+      }
+      return res;
+    } catch (err) {
+      return (await caches.match(e.request)) || (await caches.match('/')) || Response.error();
+    }
+  })());
 });
