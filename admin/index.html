@@ -107,132 +107,9 @@ textarea{resize:vertical;min-height:80px;line-height:1.55}
     </div>
   </header>
 
-  <nav class="cms-tabs">
-    <button class="tab active" data-tab="home" onclick="switchTab('home',this)">Home page</button>
-    <button class="tab" data-tab="services" onclick="switchTab('services',this)">Services page</button>
-  </nav>
+  <nav class="cms-tabs" id="tabs"></nav>
 
-  <div class="cms-body">
-
-    <!-- ── HOME TAB ── -->
-    <div class="panel active" id="panel-home">
-
-      <div class="section-label">Hero</div>
-      <div class="field"><label>Eyebrow label</label><input type="text" data-key="home.hero_eyebrow"></div>
-
-      <div class="section-label">Hero — Stats card</div>
-      <div class="field"><label>Card label (e.g. AVG. REVENUE LIFT)</label><input type="text" data-key="home.metric_label"></div>
-      <div class="field-row">
-        <div class="field" style="margin:0"><label>Metric number (e.g. 2.4)</label><input type="text" data-key="home.metric_num" placeholder="2.4"></div>
-        <div class="field" style="margin:0"><label>Metric sub-line</label><input type="text" data-key="home.metric_sub" placeholder="across 120+ commerce builds"></div>
-      </div>
-
-      <div class="section-label">Hero — Case study card</div>
-      <div class="field"><label>Eyebrow (e.g. LIVE · CLIENT NAME)</label><input type="text" data-key="home.card_eyebrow"></div>
-      <div class="field"><label>Project title</label><input type="text" data-key="home.card_title"></div>
-      <div class="field-row">
-        <div class="field" style="margin:0"><label>Tag 1</label><input type="text" data-key="home.card_tag1" placeholder="+38% CVR"></div>
-        <div class="field" style="margin:0"><label>Tag 2</label><input type="text" data-key="home.card_tag2" placeholder="Headless"></div>
-      </div>
-
-      <div class="section-label">Trusted by</div>
-      <div class="field"><label>Strip label</label><input type="text" data-key="home.tb_label" placeholder="TRUSTED BY MODERN BRANDS"></div>
-      <div class="field-row">
-        <div class="field" style="margin:0"><label>Client 1</label><input type="text" data-key="home.tb_c1"></div>
-        <div class="field" style="margin:0"><label>Client 2</label><input type="text" data-key="home.tb_c2"></div>
-      </div>
-      <div class="field-row">
-        <div class="field" style="margin:0"><label>Client 3</label><input type="text" data-key="home.tb_c3"></div>
-        <div class="field" style="margin:0"><label>Client 4</label><input type="text" data-key="home.tb_c4"></div>
-      </div>
-      <div class="field-row">
-        <div class="field" style="margin:0"><label>Client 5</label><input type="text" data-key="home.tb_c5"></div>
-        <div class="field" style="margin:0"><label>Client 6</label><input type="text" data-key="home.tb_c6"></div>
-      </div>
-      <div class="field-row">
-        <div class="field" style="margin:0"><label>H1 text (before highlight)</label><input type="text" data-key="home.hero_h1_before" placeholder="Commerce, engineered to "></div>
-        <div class="field" style="margin:0"><label>H1 highlighted word</label><input type="text" data-key="home.hero_h1_highlight" placeholder="grow."></div>
-      </div>
-      <div class="field"><label>Sub-headline</label><textarea data-key="home.hero_sub" rows="3"></textarea></div>
-
-      <div class="section-label">Services section (home)</div>
-      <div class="field"><label>Section heading</label><input type="text" data-key="home.services_h2"></div>
-      <div class="field"><label>Section sub-line</label><textarea data-key="home.services_subline" rows="2"></textarea></div>
-
-      <div class="section-label">Service cards</div>
-      <div class="field-row"><div class="field" style="margin:0"><label>Card 1 title</label><input type="text" data-key="home.svc1_title"></div><div class="field" style="margin:0"><label>Card 1 description</label><textarea data-key="home.svc1_desc" rows="3"></textarea></div></div>
-      <div class="field-row"><div class="field" style="margin:0"><label>Card 2 title</label><input type="text" data-key="home.svc2_title"></div><div class="field" style="margin:0"><label>Card 2 description</label><textarea data-key="home.svc2_desc" rows="3"></textarea></div></div>
-      <div class="field-row"><div class="field" style="margin:0"><label>Card 3 title</label><input type="text" data-key="home.svc3_title"></div><div class="field" style="margin:0"><label>Card 3 description</label><textarea data-key="home.svc3_desc" rows="3"></textarea></div></div>
-      <div class="field-row"><div class="field" style="margin:0"><label>Card 4 title</label><input type="text" data-key="home.svc4_title"></div><div class="field" style="margin:0"><label>Card 4 description</label><textarea data-key="home.svc4_desc" rows="3"></textarea></div></div>
-      <div class="field-row"><div class="field" style="margin:0"><label>Card 5 title</label><input type="text" data-key="home.svc5_title"></div><div class="field" style="margin:0"><label>Card 5 description</label><textarea data-key="home.svc5_desc" rows="3"></textarea></div></div>
-      <div class="field-row"><div class="field" style="margin:0"><label>Card 6 title</label><input type="text" data-key="home.svc6_title"></div><div class="field" style="margin:0"><label>Card 6 description</label><textarea data-key="home.svc6_desc" rows="3"></textarea></div></div>
-      <div class="field-row"><div class="field" style="margin:0"><label>Card 7 title</label><input type="text" data-key="home.svc7_title"></div><div class="field" style="margin:0"><label>Card 7 description</label><textarea data-key="home.svc7_desc" rows="3"></textarea></div></div>
-      <div class="field-row"><div class="field" style="margin:0"><label>Card 8 title — Custom ERP</label><input type="text" data-key="home.svc8_title"></div><div class="field" style="margin:0"><label>Card 8 description</label><textarea data-key="home.svc8_desc" rows="3"></textarea></div></div>
-      <div class="field-row"><div class="field" style="margin:0"><label>Card 9 title — CRM</label><input type="text" data-key="home.svc9_title"></div><div class="field" style="margin:0"><label>Card 9 description</label><textarea data-key="home.svc9_desc" rows="3"></textarea></div></div>
-      <div class="field-row"><div class="field" style="margin:0"><label>Card 10 title — Native apps</label><input type="text" data-key="home.svc10_title"></div><div class="field" style="margin:0"><label>Card 10 description</label><textarea data-key="home.svc10_desc" rows="3"></textarea></div></div>
-
-      <div class="section-label">Selected work</div>
-      <div class="field"><label>Section heading</label><input type="text" data-key="home.work_h2"></div>
-      <div class="field-row"><div class="field" style="margin:0"><label>Case study 1 — client</label><input type="text" data-key="home.case1_client"></div><div class="field" style="margin:0"><label>Case study 1 — description</label><textarea data-key="home.case1_desc" rows="3"></textarea></div></div>
-      <div class="field-row"><div class="field" style="margin:0"><label>Case study 2 — client</label><input type="text" data-key="home.case2_client"></div><div class="field" style="margin:0"><label>Case study 2 — description</label><textarea data-key="home.case2_desc" rows="3"></textarea></div></div>
-      <div class="field-row"><div class="field" style="margin:0"><label>Case study 3 — client</label><input type="text" data-key="home.case3_client"></div><div class="field" style="margin:0"><label>Case study 3 — description</label><textarea data-key="home.case3_desc" rows="3"></textarea></div></div>
-
-      <div class="section-label">Process steps</div>
-      <div class="field"><label>Section heading</label><input type="text" data-key="home.process_h2"></div>
-      <div class="field-row"><div class="field" style="margin:0"><label>Step 1 title</label><input type="text" data-key="home.proc1_title"></div><div class="field" style="margin:0"><label>Step 1 description</label><textarea data-key="home.proc1_desc" rows="2"></textarea></div></div>
-      <div class="field-row"><div class="field" style="margin:0"><label>Step 2 title</label><input type="text" data-key="home.proc2_title"></div><div class="field" style="margin:0"><label>Step 2 description</label><textarea data-key="home.proc2_desc" rows="2"></textarea></div></div>
-      <div class="field-row"><div class="field" style="margin:0"><label>Step 3 title</label><input type="text" data-key="home.proc3_title"></div><div class="field" style="margin:0"><label>Step 3 description</label><textarea data-key="home.proc3_desc" rows="2"></textarea></div></div>
-      <div class="field-row"><div class="field" style="margin:0"><label>Step 4 title</label><input type="text" data-key="home.proc4_title"></div><div class="field" style="margin:0"><label>Step 4 description</label><textarea data-key="home.proc4_desc" rows="2"></textarea></div></div>
-
-      <div class="section-label">Call to action</div>
-      <div class="field"><label>CTA heading</label><input type="text" data-key="home.cta_h2"></div>
-      <div class="field"><label>CTA sub-text</label><textarea data-key="home.cta_sub" rows="2"></textarea></div>
-    </div>
-
-    <!-- ── SERVICES TAB ── -->
-    <div class="panel" id="panel-services">
-
-      <div class="section-label">Page intro</div>
-      <div class="field-row">
-        <div class="field" style="margin:0"><label>H1 text (before highlight)</label><input type="text" data-key="services.sint_h1_before"></div>
-        <div class="field" style="margin:0"><label>H1 highlighted word</label><input type="text" data-key="services.sint_h1_highlight"></div>
-      </div>
-      <div class="field"><label>Intro paragraph</label><textarea data-key="services.sint_desc" rows="3"></textarea></div>
-
-      <div class="section-label">Service sections</div>
-      <div class="field"><label>S1 heading — Web Development</label><input type="text" data-key="services.s1_h2"></div>
-      <div class="field"><label>S1 body</label><textarea data-key="services.s1_body" rows="3"></textarea></div>
-      <div class="field"><label>S2 heading — Ecommerce Store Building</label><input type="text" data-key="services.s2_h2"></div>
-      <div class="field"><label>S2 body</label><textarea data-key="services.s2_body" rows="3"></textarea></div>
-      <div class="field"><label>S3 heading — Marketplace Management</label><input type="text" data-key="services.s3_h2"></div>
-      <div class="field"><label>S3 body</label><textarea data-key="services.s3_body" rows="3"></textarea></div>
-      <div class="field"><label>S4 heading — Digital Marketing</label><input type="text" data-key="services.s4_h2"></div>
-      <div class="field"><label>S4 body</label><textarea data-key="services.s4_body" rows="3"></textarea></div>
-      <div class="field"><label>S5 heading — Social Media</label><input type="text" data-key="services.s5_h2"></div>
-      <div class="field"><label>S5 body</label><textarea data-key="services.s5_body" rows="3"></textarea></div>
-      <div class="field"><label>S6 heading — Product Design</label><input type="text" data-key="services.s6_h2"></div>
-      <div class="field"><label>S6 body</label><textarea data-key="services.s6_body" rows="3"></textarea></div>
-      <div class="field"><label>S7 heading — Branding</label><input type="text" data-key="services.s7_h2"></div>
-      <div class="field"><label>S7 body</label><textarea data-key="services.s7_body" rows="3"></textarea></div>
-      <div class="field"><label>S8 heading — Custom ERP</label><input type="text" data-key="services.s8_h2"></div>
-      <div class="field"><label>S8 body</label><textarea data-key="services.s8_body" rows="3"></textarea></div>
-      <div class="field"><label>S9 heading — CRM</label><input type="text" data-key="services.s9_h2"></div>
-      <div class="field"><label>S9 body</label><textarea data-key="services.s9_body" rows="3"></textarea></div>
-      <div class="field"><label>S10 heading — Native apps</label><input type="text" data-key="services.s10_h2"></div>
-      <div class="field"><label>S10 body</label><textarea data-key="services.s10_body" rows="3"></textarea></div>
-
-      <div class="section-label">Pricing tiers</div>
-      <div class="field"><label>Section heading</label><input type="text" data-key="services.pricing_h2"></div>
-      <div class="field-row"><div class="field" style="margin:0"><label>Tier 1 name</label><input type="text" data-key="services.tier1_name"></div><div class="field" style="margin:0"><label>Tier 1 description</label><textarea data-key="services.tier1_desc" rows="2"></textarea></div></div>
-      <div class="field-row"><div class="field" style="margin:0"><label>Tier 2 name</label><input type="text" data-key="services.tier2_name"></div><div class="field" style="margin:0"><label>Tier 2 description</label><textarea data-key="services.tier2_desc" rows="2"></textarea></div></div>
-      <div class="field-row"><div class="field" style="margin:0"><label>Tier 3 name</label><input type="text" data-key="services.tier3_name"></div><div class="field" style="margin:0"><label>Tier 3 description</label><textarea data-key="services.tier3_desc" rows="2"></textarea></div></div>
-
-      <div class="section-label">Call to action</div>
-      <div class="field"><label>CTA heading</label><input type="text" data-key="services.cta_h2"></div>
-      <div class="field"><label>CTA sub-text</label><textarea data-key="services.cta_sub" rows="2"></textarea></div>
-    </div>
-
-  </div><!-- /cms-body -->
+  <div class="cms-body" id="panels"></div><!-- /cms-body -->
 </div><!-- /cms -->
 
 <script>
@@ -246,15 +123,6 @@ function setStatus(msg, cls) {
   if (cls === 'done') setTimeout(() => { if (el.textContent === msg) el.textContent = ''; }, 6000);
 }
 
-function getVal(key) {
-  const el = document.querySelector(`[data-key="${key}"]`);
-  return el ? el.value : '';
-}
-function setVal(key, val) {
-  const el = document.querySelector(`[data-key="${key}"]`);
-  if (el) el.value = val || '';
-}
-
 // ── Tab switching ─────────────────────────────────────────────────────────────
 function switchTab(tab, btn) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -263,22 +131,123 @@ function switchTab(tab, btn) {
   document.getElementById('panel-' + tab).classList.add('active');
 }
 
+// ── Editor schema ─────────────────────────────────────────────────────────────
+// Every editable key in content.json, grouped for the editor: [key, label, 'area' for long text].
+// A key that exists in content.json but is not listed here still gets a field under "Other",
+// so saving never drops content.
+const many = (n, fn) => Array.from({ length: n }, (_, i) => fn(i + 1)).flat();
+const SCHEMA = {
+  home: { label: 'Home page', groups: [
+    ['First screen', [
+      ['hero_eyebrow', 'Small label above the headline'],
+      ['hero_h1_before', 'Headline, before the underlined word'],
+      ['hero_h1_highlight', 'Headline, underlined word'],
+      ['hero_sub', 'Sub-headline (shown on desktop)', 'area'],
+      ['form_note', 'Line under the Send button'],
+    ]],
+    ['Clients strip', [['tb_label', 'Label'], ...many(6, i => [['tb_c' + i, 'Client ' + i]])]],
+    ['Services screen', [
+      ['services_h2', 'Heading'],
+      ['services_subline', 'Sub-line (shown on desktop)'],
+      ...many(9, i => [['svc' + i + '_title', 'Service ' + i + ' name'], ['svc' + i + '_desc', 'Service ' + i + ' one-line description']]),
+    ]],
+    ['Numbers', [['nums_h2', 'Heading'], ...many(4, i => [['num' + i + '_value', 'Number ' + i + ' (e.g. 120+)'], ['num' + i + '_label', 'Number ' + i + ' label']])]],
+    ['Selected work', [['work_h2', 'Heading'], ...many(3, i => [['case' + i + '_client', 'Project ' + i + ' client'], ['case' + i + '_desc', 'Project ' + i + ' description'], ['case' + i + '_stat', 'Project ' + i + ' result']])]],
+    ['About and contact screens', [
+      ['about_h2', 'About heading'],
+      ['cta_h2_before', 'Contact heading, before the underlined word'],
+      ['cta_h2_highlight', 'Contact heading, underlined word'],
+      ['cta_sub', 'Contact sub-text', 'area'],
+    ]],
+  ]},
+  services: { label: 'Services page', groups: [
+    ['Page intro', [
+      ['sint_h1_before', 'Headline, before the underlined word'],
+      ['sint_h1_highlight', 'Headline, underlined word'],
+      ['sint_desc', 'Intro paragraph (shown on desktop)', 'area'],
+    ]],
+    ['Service screens (names are edited on the Home tab)', many(9, i => [['s' + i + '_h2', 'Service ' + i + ' tagline'], ['s' + i + '_body', 'Service ' + i + ' description', 'area']])],
+    ['How we engage', [['pricing_h2', 'Heading'], ...many(3, i => [['tier' + i + '_name', 'Option ' + i + ' name'], ['tier' + i + '_desc', 'Option ' + i + ' description', 'area']])]],
+    ['Call to action', [['cta_h2', 'Heading'], ['cta_sub', 'Sub-text', 'area']]],
+  ]},
+  about: { label: 'About page', groups: [
+    ['Page intro', [
+      ['h1_before', 'Headline, before the underlined word'],
+      ['h1_highlight', 'Headline, underlined word'],
+      ['intro', 'Intro paragraph', 'area'],
+    ]],
+    ['Why Greenline (the first five titles also show on the home page)', [['why_h2', 'Heading'], ...many(5, i => [['pt' + i + '_title', 'Point ' + i + ' title'], ['pt' + i + '_desc', 'Point ' + i + ' description', 'area']])]],
+    ['How we work', [['process_h2', 'Heading'], ...many(4, i => [['proc' + i + '_title', 'Step ' + i + ' title'], ['proc' + i + '_desc', 'Step ' + i + ' description', 'area']])]],
+    ['Call to action', [['cta_h2', 'Heading'], ['cta_sub', 'Sub-text', 'area']]],
+  ]},
+};
+
+function addField(parent, page, key, label, kind) {
+  const wrap = document.createElement('div');
+  wrap.className = 'field';
+  const id = 'f-' + page + '-' + key;
+  const lab = document.createElement('label');
+  lab.setAttribute('for', id);
+  lab.textContent = label;
+  const input = document.createElement(kind === 'area' ? 'textarea' : 'input');
+  if (kind === 'area') input.rows = 3; else input.type = 'text';
+  input.id = id;
+  input.setAttribute('data-key', page + '.' + key);
+  wrap.append(lab, input);
+  parent.append(wrap);
+  return input;
+}
+function addGroup(panel, title) {
+  const h = document.createElement('div');
+  h.className = 'section-label';
+  h.textContent = title;
+  panel.append(h);
+}
+function addPage(page, label) {
+  const tabs = document.getElementById('tabs'), first = !tabs.children.length;
+  const tab = document.createElement('button');
+  tab.className = 'tab' + (first ? ' active' : '');
+  tab.type = 'button';
+  tab.textContent = label;
+  tab.addEventListener('click', () => switchTab(page, tab));
+  tabs.append(tab);
+  const panel = document.createElement('div');
+  panel.className = 'panel' + (first ? ' active' : '');
+  panel.id = 'panel-' + page;
+  document.getElementById('panels').append(panel);
+  return panel;
+}
+for (const [page, def] of Object.entries(SCHEMA)) {
+  const panel = addPage(page, def.label);
+  for (const [title, fields] of def.groups) {
+    addGroup(panel, title);
+    for (const [key, label, kind] of fields) addField(panel, page, key, label, kind);
+  }
+}
+
 // ── Populate fields from content object ───────────────────────────────────────
 function populate(content) {
   for (const [page, fields] of Object.entries(content)) {
+    if (!fields || typeof fields !== 'object') continue;
+    let panel = document.getElementById('panel-' + page), other = false;
+    if (!panel) panel = addPage(page, page);
     for (const [key, val] of Object.entries(fields)) {
-      setVal(`${page}.${key}`, val);
+      let el = document.querySelector(`[data-key="${page}.${key}"]`);
+      if (!el) {
+        if (!other) { addGroup(panel, 'Other'); other = true; }
+        el = addField(panel, page, key, key, String(val || '').length > 70 ? 'area' : 'text');
+      }
+      el.value = val || '';
     }
   }
 }
 
 // ── Collect fields into content object ────────────────────────────────────────
 function collect() {
-  const content = { home: {}, services: {} };
+  const content = {};
   document.querySelectorAll('[data-key]').forEach(el => {
     const [page, ...rest] = el.getAttribute('data-key').split('.');
-    const key = rest.join('.');
-    if (content[page]) content[page][key] = el.value;
+    (content[page] = content[page] || {})[rest.join('.')] = el.value;
   });
   return content;
 }

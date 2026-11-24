@@ -6,36 +6,47 @@
     "locale": "en",
     "email": "hello@greenlinestudio.in",
     "twitter": "@greenlinestudio",
-    "theme_color": "#0A0F0D",
+    "theme_color": "#FFFFFF",
     "gtag_id": "AW-18275194372",
     "og_image": "/og-image.png",
     "founding_year": "2026",
     "area_served": "Worldwide",
     "service_list": [
-      "Web Development",
-      "Ecommerce Store Building",
-      "Marketplace Management",
-      "Digital Marketing",
-      "Social Media Handling",
-      "Product Design",
-      "Branding",
-      "Custom ERP Systems",
-      "CRM Systems",
-      "Native App Development"
+      "SEO & AI Search Optimization",
+      "PPC & Paid Advertising",
+      "Social Media Marketing",
+      "Ecommerce Platform Management",
+      "Ecommerce Web Development",
+      "Mobile App Development",
+      "Ecommerce Marketing",
+      "Lead Generation",
+      "Marketing Automation"
     ]
   },
   "seo": {
     "home": {
-      "title": "Greenline — Digital Commerce Studio | Shopify Web Development & Ecom Growth",
-      "description": "Greenline is a digital commerce studio. We design, build and run high-performance Shopify storefronts, marketplaces and marketing for brands that want growth without friction.",
+      "title": "Greenline — Digital Commerce Studio | SEO, Ads, Marketplaces & Ecommerce Development",
+      "description": "Greenline is a digital commerce studio. SEO and AI search, paid ads, marketplace management, ecommerce web and app development, and marketing for brands that want growth without friction.",
       "path": "/",
-      "keywords": "digital commerce studio, Shopify development, ecommerce agency, headless commerce, marketplace management, ecommerce marketing"
+      "keywords": "digital commerce studio, ecommerce agency, SEO and AI search optimization, PPC agency, Amazon marketplace management, Shopify development, ecommerce marketing"
     },
     "services": {
-      "title": "Services — Web, Shopify, Marketplaces & Marketing | Greenline",
-      "description": "One studio for the whole commerce stack: storefront builds, Shopify & WooCommerce, marketplace management, performance marketing, social, product design and branding.",
+      "title": "Services — SEO, PPC, Social, Marketplaces, Web & App Development | Greenline",
+      "description": "Nine services from one studio: SEO and AI search optimization, PPC, social media marketing, Amazon and Walmart management, ecommerce web development, mobile apps, ecommerce marketing, lead generation and marketing automation.",
       "path": "/services",
-      "keywords": "ecommerce services, Shopify store setup, marketplace management, performance marketing, product design, branding agency"
+      "keywords": "SEO services, AI search optimization, PPC management, social media marketing, Amazon account management, Walmart marketplace management, ecommerce web development, mobile app development, lead generation, marketing automation"
+    },
+    "about": {
+      "title": "About — One Senior Team for the Whole Store | Greenline",
+      "description": "Greenline builds, markets and manages online stores end to end. In-house designers, dedicated ad managers and 9+ years in ecommerce, with nothing outsourced.",
+      "path": "/about",
+      "keywords": "ecommerce agency team, in-house designers, dedicated ad managers, ecommerce consultation"
+    },
+    "contact": {
+      "title": "Contact — Tell Us What You Sell | Greenline",
+      "description": "Send Greenline a message about your store. One reply within one business day.",
+      "path": "/contact",
+      "keywords": "contact ecommerce agency, ecommerce consultation, start a project"
     }
   }
 }

@@ -14,18 +14,20 @@ const read = p => fs.readFileSync(path.join(ROOT, p), 'utf8');
 const content = JSON.parse(read('content.json'));
 const SERVICES = require('./src/data/services.js');
 
-/* SEO config lives in seo.json, not content.json: the CMS rewrites content.json from its
-   own fields, so anything extra there is wiped on the next save. Defaults keep a build alive. */
+/* SEO config lives in seo.json, not content.json: the CMS only edits copy.
+   Defaults keep a build alive if the file is missing. */
 const SEO_DEFAULTS = {
   site: {
     name: 'Greenline Commerce Studio', short_name: 'Greenline',
     base_url: 'https://greenlinestudio.in', locale: 'en',
-    email: 'hello@greenlinestudio.in', twitter: '', theme_color: '#0A0F0D', gtag_id: '',
+    email: 'hello@greenlinestudio.in', twitter: '', theme_color: '#FFFFFF', gtag_id: '',
     og_image: '/og-image.png', founding_year: '2026', area_served: 'Worldwide', service_list: [],
   },
   seo: {
     home:     { title: 'Greenline Commerce Studio', description: '', path: '/',         keywords: '' },
     services: { title: 'Services — Greenline',       description: '', path: '/services', keywords: '' },
+    about:    { title: 'About — Greenline',          description: '', path: '/about',    keywords: '' },
+    contact:  { title: 'Contact — Greenline',        description: '', path: '/contact',  keywords: '' },
   },
 };
 let seoConfig = SEO_DEFAULTS;
@@ -62,68 +64,65 @@ function render(tpl, ctx) {
 }
 
 /* ── generated blocks ────────────────────────────────────────────────────── */
-const GLYPHS = [
-  '<path d="M4 20 20 4M13 4h7v7"></path>',
-  '<circle cx="12" cy="12" r="3.6"></circle><ellipse cx="12" cy="12" rx="10" ry="4.4" transform="rotate(-24 12 12)"></ellipse>',
-  '<path d="M4 11l8-6 8 6M4 18l8-6 8 6"></path>',
-  '<rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M8 16V8l4 5 4-5v8"></path>',
-  '<circle cx="12" cy="12" r="9"></circle><path d="M8.5 10h.01M15.5 10h.01M8 16c2.5-2 5.5-2 8 0"></path>',
-  '<path d="M12 3l9 5v8l-9 5-9-5V8z"></path>',
-];
-const PLATFORMS = ['Shopify', 'WooCommerce', 'Amazon', 'Flipkart', 'Meta', 'Google Ads', 'X'];
-/* each marquee set is printed twice so the CSS loop is seamless; the copy is hidden from assistive tech */
-const twice = html => html + '<span class="mq-dup" aria-hidden="true">' + html + '</span>';
+const H = content.home, S = content.services, A = content.about;
+const TOTAL = SERVICES.length;
 
+/* client names for the strip under the hero form; printed twice so the CSS loop is seamless */
 function clientMarks() {
-  const names = [1, 2, 3, 4, 5, 6].map(i => content.home['tb_c' + i]).filter(Boolean);
-  return twice(names.map((n, i) =>
-    `<span class="wm wm-${i % 5}"><svg viewBox="0 0 24 24" aria-hidden="true">${GLYPHS[i % GLYPHS.length]}</svg>${esc(n)}</span>`).join(''));
+  const names = [1, 2, 3, 4, 5, 6].map(i => H['tb_c' + i]).filter(Boolean);
+  /* the list is doubled inside each half so one half is always wider than the strip */
+  const set = names.concat(names).map(n => `<span>${esc(n)}</span>`).join('');
+  return set + '<div class="mq-dup" aria-hidden="true">' + set + '</div>';
 }
-const platformMarks = () => twice(PLATFORMS.map(p => `<span class="pm">${esc(p)}</span>`).join(''));
 
-const visual = (s, i) =>
-  `<div class="vis glass" data-sc data-io role="img" aria-label="Illustration: ${esc(s.alt)}"><div class="vis-in">${s.visual()}</div></div>`;
+/* home: one short card per service, swiped sideways */
+const homeCards = () => SERVICES.map((s, i) => {
+  const n = i + 1;
+  return `<a class="card rv x" href="/services#s${n}"><span class="n">${pad(n)}</span><h3>${esc(H['svc' + n + '_title'])}</h3><p>${esc(H['svc' + n + '_desc'])}</p></a>`;
+}).join('\n        ');
 
-function homeServices() {
-  return SERVICES.map((s, i) => {
-    const n = i + 1;
-    return `<article class="svc" id="svc-${n}">
-        <div class="svc-media">${visual(s, i)}</div>
-        <div class="svc-body">
-          <span class="svc-n" aria-hidden="true">${pad(n)}</span>
-          <p class="kicker" data-rv>${esc(content.services['s' + n + '_h2'])}</p>
-          <h3 data-rv style="--d:1">${esc(content.home['svc' + n + '_title'])}</h3>
-          <p class="d" data-rv style="--d:2">${esc(content.home['svc' + n + '_desc'])}</p>
-          <a class="xlink" href="/services#s${n}">Explore<span class="arr"></span></a>
-        </div>
-      </article>`;
-  }).join('\n      ');
+/* "120+", "+38%", "9 yrs" → the parts the count-up animation needs */
+function numCell(i) {
+  const raw = String(H['num' + i + '_value'] || ''), m = raw.match(/^(\D*)(\d+)(.*)$/);
+  const attrs = m ? ` data-count="${esc(m[2])}" data-pre="${esc(m[1])}" data-suf="${esc(m[3])}"` : '';
+  return `<div class="rv"><b${attrs}>${esc(raw)}</b><span>${esc(H['num' + i + '_label'])}</span></div>`;
 }
-const pager = () => SERVICES.map((s, i) =>
-  `<a href="#svc-${i + 1}" data-svc="${i + 1}" aria-label="${esc(content.home['svc' + (i + 1) + '_title'])}" title="${esc(content.home['svc' + (i + 1) + '_title'])}"></a>`).join('');
+const nums = () => [1, 2, 3, 4].map(numCell).join('\n          ');
 
-const serviceChips = () => SERVICES.map((s, i) =>
-  `<a class="chipl glass" href="#s${i + 1}"><i>${pad(i + 1)}</i>${esc(s.short)}</a>`).join('');
+const aboutPoints = short => [1, 2, 3, 4, 5].map(i =>
+  short
+    ? `<li class="rv">${esc(A['pt' + i + '_title'])}</li>`
+    : `<li class="rv"><h3>${esc(A['pt' + i + '_title'])}</h3><p>${esc(A['pt' + i + '_desc'])}</p></li>`).join('\n          ');
 
-function serviceRows() {
+const processSteps = () => [1, 2, 3, 4].map(i =>
+  `<li class="rv"><span class="n">${pad(i)}</span><h3>${esc(A['proc' + i + '_title'])}</h3><p>${esc(A['proc' + i + '_desc'])}</p></li>`).join('\n          ');
+
+/* services page: the index on the first screen, then one screen per service */
+const serviceIndex = () => SERVICES.map((s, i) =>
+  `<li><a href="#s${i + 1}"><span>${pad(i + 1)}</span>${esc(H['svc' + (i + 1) + '_title'])}</a></li>`).join('');
+
+function serviceScreens() {
   return SERVICES.map((s, i) => {
-    const n = i + 1;
-    return `<section class="srow" id="s${n}">
-      <div class="wrap srow-grid">
-        <div class="srow-media">${visual(s, i)}</div>
-        <div class="srow-body">
-          <p class="label">${pad(n)} / ${esc(s.label)}</p>
-          <h2 data-rv>${esc(content.services['s' + n + '_h2'])}</h2>
-          <p class="sub" data-rv style="--d:1">${esc(content.services['s' + n + '_body'])}</p>
-          <ul class="bul">${s.bullets.map(b => `<li>${esc(b)}</li>`).join('')}</ul>
-          <div class="tags">${s.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>
-        </div>
+    const n = i + 1, title = H['svc' + n + '_title'];
+    return `<section class="sc svc" id="s${n}" aria-labelledby="s${n}-h">
+    <div class="wrap split">
+      <div class="stack">
+        <p class="eye rv">${pad(n)} / ${pad(TOTAL)}</p>
+        <h2 class="rv" id="s${n}-h">${esc(title)}</h2>
+        <p class="tagline rv">${esc(S['s' + n + '_h2'])}</p>
       </div>
-    </section>`;
-  }).join('\n    ');
+      <div class="stack">
+        <p class="lede rv">${esc(S['s' + n + '_body'])}</p>
+        <ul class="ticks">${s.bullets.map(b => `<li class="rv">${esc(b)}</li>`).join('')}</ul>
+        <a class="link rv" href="/contact?service=${encodeURIComponent(title)}">Ask about this service</a>
+      </div>
+    </div>
+  </section>`;
+  }).join('\n\n  ');
 }
-const formOptions = () => SERVICES.map((s, i) =>
-  `<label class="chk"><input type="checkbox" name="requirement" id="bk-req-${i + 1}" value="${esc(s.short)}"><span>${esc(s.short)}</span></label>`).join('');
+
+const tiers = () => [1, 2, 3].map(i =>
+  `<li class="rv"><span class="n">${pad(i)}</span><h3>${esc(S['tier' + i + '_name'])}</h3><p>${esc(S['tier' + i + '_desc'])}</p></li>`).join('\n          ');
 
 /* ── head ────────────────────────────────────────────────────────────────── */
 function jsonLd(seoKey) {
@@ -148,6 +147,8 @@ function jsonLd(seoKey) {
       })),
     });
   }
+  if (seoKey === 'about') graph.push({ '@type': 'AboutPage', '@id': absUrl('/about#page'), url: absUrl('/about'), about: { '@id': absUrl('/#organization') } });
+  if (seoKey === 'contact') graph.push({ '@type': 'ContactPage', '@id': absUrl('/contact#page'), url: absUrl('/contact'), about: { '@id': absUrl('/#organization') } });
   return '<script type="application/ld+json">' +
     JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003C') + '</script>';
 }
@@ -163,7 +164,7 @@ function head(meta, v) {
     meta.keywords ? `<meta name="keywords" content="${esc(meta.keywords)}">` : '',
     `<meta name="robots" content="${meta.noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'}">`,
     `<meta name="theme-color" content="${esc(site.theme_color)}">`,
-    `<link rel="canonical" href="${esc(canonical)}">`,
+    meta.noindex ? '' : `<link rel="canonical" href="${esc(canonical)}">`,
     '<link rel="icon" type="image/svg+xml" href="/favicon.svg">',
     '<link rel="apple-touch-icon" href="/apple-touch-icon.png">',
   ];
@@ -174,8 +175,8 @@ function head(meta, v) {
     `<meta property="og:description" content="${esc(meta.description)}">`,
     `<meta property="og:url" content="${esc(canonical)}">`,
     `<meta property="og:image" content="${esc(ogImg)}">`,
-    '<meta property="og:image:width" content="600">',
-    '<meta property="og:image:height" content="315">',
+    '<meta property="og:image:width" content="1200">',
+    '<meta property="og:image:height" content="630">',
     `<meta property="og:locale" content="${esc(site.locale)}">`,
     '<meta name="twitter:card" content="summary_large_image">',
     site.twitter ? `<meta name="twitter:site" content="${esc(site.twitter)}">` : '',
@@ -187,9 +188,9 @@ function head(meta, v) {
   lines.push(
     '<link rel="preconnect" href="https://fonts.googleapis.com">',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
-    '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap">',
+    '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;500;600&display=swap">',
     `<link rel="stylesheet" href="/assets/site.css?v=${v}">`,
-    /* marks that scripts run, before first paint, so scroll reveals never flash */
+    /* marks that scripts run, before first paint, so arrival animations never flash */
     "<script>document.documentElement.className+=' js'</script>"
   );
   if (site.gtag_id) {
@@ -202,16 +203,19 @@ function head(meta, v) {
 }
 
 function page(name, meta, v) {
+  const cur = { home: '', services: '', about: '', contact: '' };
+  if (meta.key in cur) cur[meta.key] = ' aria-current="page"';
   const ctx = {
-    page: name, home: content.home, services: content.services, site, v,
+    page: name, home: H, services: S, about: A, site, v, cur,
     gen: {
-      clients: clientMarks(), platforms: platformMarks(), home_services: homeServices(), pager: pager(),
-      chips: serviceChips(), rows: serviceRows(), form_options: formOptions(),
+      clients: clientMarks(), cards: homeCards(), nums: nums(), total: pad(TOTAL),
+      points_short: aboutPoints(true), points: aboutPoints(false), steps: processSteps(),
+      svc_index: serviceIndex(), svc_screens: serviceScreens(), tiers: tiers(),
     },
   };
   const body = render(read('src/pages/' + name + '.html'), ctx);
   return `<!DOCTYPE html>
-<html lang="${esc(site.locale)}">
+<html lang="${esc(site.locale)}" data-tone="light">
 <head>
   ${head(meta, v)}
 </head>
@@ -266,11 +270,17 @@ fs.writeFileSync(path.join(DIST, 'assets', 'site.css'), css);
 fs.writeFileSync(path.join(DIST, 'assets', 'site.js'), js);
 if (gtagJs) fs.writeFileSync(path.join(DIST, 'assets', 'gtag.js'), gtagJs);
 
+const seo = seoConfig.seo;
 const pages = [
-  ['home', 'index.html', Object.assign({ key: 'home', prefetch: '/services' }, seoConfig.seo.home)],
-  ['services', 'services.html', Object.assign({ key: 'services', prefetch: '/' }, seoConfig.seo.services)],
+  ['home', 'index.html', Object.assign({ key: 'home', prefetch: '/services' }, seo.home)],
+  ['services', 'services.html', Object.assign({ key: 'services', prefetch: '/contact' }, seo.services)],
+  ['about', 'about.html', Object.assign({ key: 'about', prefetch: '/contact' }, seo.about)],
+  ['contact', 'contact.html', Object.assign({ key: 'contact' }, seo.contact)],
   ['thank-you', 'thank-you.html', { key: 'thank-you', noindex: true, path: '/thank-you',
-    title: 'Thank you — ' + site.name, description: 'Your request has reached Greenline. We reply within one business day.' }],
+    title: 'Thank you — ' + site.name, description: 'Your message has reached Greenline. We reply within one business day.' }],
+  /* Cloudflare Pages serves 404.html for unknown URLs instead of falling back to the home page */
+  ['404', '404.html', { key: '404', noindex: true, path: '/404',
+    title: 'Page not found — ' + site.name, description: 'That page does not exist.' }],
 ];
 for (const [name, file, meta] of pages) {
   console.log('Building ' + file + '...');

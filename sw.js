@@ -1,6 +1,6 @@
 /* Network-first for page navigations, with the last good copy as an offline fallback.
    Pages always come fresh from the network, so a deploy shows up on the next visit. */
-const CACHE = 'greenline-v4';
+const CACHE = 'greenline-v5';
 
 self.addEventListener('install', () => { self.skipWaiting(); });
 

@@ -1,0 +1,18 @@
+<!-- The lead form. The script sends it in the background and then opens /thank-you;
+     without scripts it posts straight to the form service, which redirects to the same page. -->
+<form class="lead" id="lead" action="https://api.web3forms.com/submit" method="POST">
+  <input type="hidden" name="access_key" value="a62b7648-2556-4ccb-bdbc-964816910070">
+  <input type="hidden" name="subject" value="New enquiry, greenlinestudio.in">
+  <input type="hidden" name="from_name" value="greenline website">
+  <input type="hidden" name="redirect" value="{{site.base_url}}/thank-you">
+  <input type="hidden" name="service" id="lead-service" value="">
+  <p class="lead-about rv" id="lead-about" hidden></p>
+  <label class="f w rv" for="lead-name"><input id="lead-name" name="name" type="text" autocomplete="name" placeholder=" " required><span>Name</span></label>
+  <label class="f w rv" for="lead-email"><input id="lead-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder=" " required><span>Email</span></label>
+  <label class="f rv" for="lead-phone"><input id="lead-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder=" "><span>Phone <em>(optional)</em></span></label>
+  <label class="f rv" for="lead-website"><input id="lead-website" name="website" type="text" inputmode="url" autocomplete="url" placeholder=" "><span>Website <em>(optional)</em></span></label>
+  <label class="f w rv" for="lead-message"><textarea id="lead-message" name="message" rows="2" placeholder=" " required></textarea><span>Message</span></label>
+  <input class="hp" type="checkbox" name="botcheck" id="lead-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+  <button class="btn rv" type="submit" id="lead-send">Send message</button>
+  <p class="note rv" id="lead-note" role="status" data-idle="{{home.form_note}}" data-fail="Couldn’t send just now. Please email {{site.email}}.">{{home.form_note}}</p>
+</form>

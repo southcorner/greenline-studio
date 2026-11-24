@@ -1,0 +1,26 @@
+{{> nav}}
+
+<main class="snap" id="main">
+  <section class="sc hero" id="top">
+    <div class="wrap hero-grid">
+      <div class="stack">
+        <p class="eye rv">Contact us</p>
+        <h1 class="rv">Tell us what you <span class="u">sell.</span></h1>
+        <p class="lede wide-only rv">{{home.cta_sub}} We’ll map the straightest line to get there.</p>
+      </div>
+      {{> lead}}
+    </div>
+  </section>
+
+  <section class="sc end" id="direct">
+    <div class="wrap stack end-body">
+      <p class="eye rv">Prefer email?</p>
+      <h2 class="rv">Write to us <span class="u">directly.</span></h2>
+      <p class="lede rv">Remote, working with brands worldwide. One reply within one business day.</p>
+      <div class="cta-row rv">
+        <button class="mail" type="button" id="cta-copy" data-copy="{{site.email}}">{{site.email}}<span>Copy</span></button>
+      </div>
+    </div>
+    <div class="wrap">{{> footer}}</div>
+  </section>
+</main>

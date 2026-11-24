@@ -1,0 +1,59 @@
+{{> nav}}
+
+<main class="snap" id="main">
+  <section class="sc" id="top">
+    <div class="wrap stack">
+      <p class="eye rv">About us</p>
+      <h1 class="rv">{{{about.h1_before}}}<span class="u">{{about.h1_highlight}}</span></h1>
+      <p class="lede big rv">{{about.intro}}</p>
+      <a class="link rv" href="/services">See what we do</a>
+    </div>
+  </section>
+
+  <section class="sc" id="why">
+    <div class="wrap split">
+      <div class="stack">
+        <p class="eye rv">Why Greenline</p>
+        <h2 class="rv">{{about.why_h2}}</h2>
+      </div>
+      <ul class="feat">
+          {{{gen.points}}}
+      </ul>
+    </div>
+  </section>
+
+  <section class="sc" id="numbers">
+    <div class="wrap stack">
+      <p class="eye rv">The line goes up</p>
+      <h2 class="rv">{{home.nums_h2}}</h2>
+      <div class="grid2">
+          {{{gen.nums}}}
+      </div>
+    </div>
+  </section>
+
+  <section class="sc" id="process">
+    <div class="wrap split">
+      <div class="stack">
+        <p class="eye rv">How we work</p>
+        <h2 class="rv">{{about.process_h2}}</h2>
+      </div>
+      <ol class="steps">
+          {{{gen.steps}}}
+      </ol>
+    </div>
+  </section>
+
+  <section class="sc end" id="contact">
+    <div class="wrap stack end-body">
+      <p class="eye rv">Contact us</p>
+      <h2 class="rv">{{about.cta_h2}}</h2>
+      <p class="lede rv">{{about.cta_sub}}</p>
+      <div class="cta-row rv">
+        <a class="btn" href="/contact" id="cta-send">Send a message</a>
+        <button class="mail" type="button" id="cta-copy" data-copy="{{site.email}}">{{site.email}}<span>Copy</span></button>
+      </div>
+    </div>
+    <div class="wrap">{{> footer}}</div>
+  </section>
+</main>
